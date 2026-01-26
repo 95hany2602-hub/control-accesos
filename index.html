@@ -8,194 +8,112 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="/_sdk/data_sdk.js"></script>
   <script src="/_sdk/element_sdk.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
   
   <style>
-    body { font-family: 'Plus Jakarta Sans', sans-serif; background: #f8fafc; color: #1e293b; -webkit-tap-highlight-color: transparent; }
-    .card { background: white; border: 1px solid #e2e8f0; border-radius: 20px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03); }
-    .input { background: #ffffff; border: 1.5px solid #e2e8f0; padding: 14px; border-radius: 12px; width: 100%; color: #1e293b; margin-bottom: 12px; font-size: 16px; }
-    .input:focus { border-color: #8b5cf6; outline: none; box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1); }
-    .btn-main { background: #8b5cf6; color: white; width: 100%; padding: 16px; border-radius: 12px; font-weight: 800; transition: all 0.2s; }
-    .btn-main:active { transform: scale(0.97); background: #7c3aed; }
-    #setup, #app { display: none; }
-    .active { display: block !important; }
-    @media print { .no-print { display: none !important; } #print-area { display: block !important; border: none; box-shadow: none; } }
+    body { font-family: sans-serif; background: #f8fafc; color: #1e293b; margin: 0; padding: 0; }
+    .btn-punto { background: #8b5cf6; color: white; width: 100%; padding: 20px; border-radius: 15px; font-weight: bold; font-size: 18px; border: none; margin-bottom: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); cursor: pointer; display: block; }
+    .btn-punto:active { background: #7c3aed; transform: scale(0.98); }
+    .card { background: white; border-radius: 20px; padding: 20px; border: 1px solid #e2e8f0; margin-bottom: 20px; }
+    .input { width: 100%; padding: 15px; margin-bottom: 10px; border: 1px solid #cbd5e1; border-radius: 10px; box-sizing: border-box; font-size: 16px; }
+    .hidden { display: none; }
+    #setup { padding: 40px 20px; text-align: center; }
   </style>
  </head>
  <body>
 
-  <div id="setup" class="active p-6 min-h-screen flex flex-col justify-center items-center">
-    <div class="text-center mb-10">
-        <h1 class="text-3xl font-extrabold text-slate-900 tracking-tighter">INGRESOS</h1>
-        <p class="text-purple-600 font-bold tracking-widest text-sm">VIA CUMBRES</p>
-    </div>
-    <div class="space-y-4 w-full max-w-xs">
-      <button onclick="iniciar('Acceso 1')" class="btn-main shadow-xl shadow-purple-200">ACCESO 1</button>
-      <button onclick="iniciar('Acceso 2')" class="btn-main shadow-xl shadow-purple-200">ACCESO 2</button>
-      <button onclick="iniciar('Peatonal')" class="btn-main shadow-xl shadow-purple-200">PEATONAL</button>
+  <div id="setup">
+    <h1 style="font-size: 28px; margin-bottom: 10px;">Ingresos</h1>
+    <h2 style="color: #8b5cf6; margin-top: 0; margin-bottom: 40px;">VIA CUMBRES</h2>
+    <p style="margin-bottom: 30px; color: #64748b;">Toque su ubicación actual:</p>
+    
+    <div style="max-width: 300px; margin: 0 auto;">
+        <button type="button" onclick="iniciarApp('Acceso 1')" class="btn-punto">ACCESO 1</button>
+        <button type="button" onclick="iniciarApp('Acceso 2')" class="btn-punto">ACCESO 2</button>
+        <button type="button" onclick="iniciarApp('Peatonal')" class="btn-punto">PEATONAL</button>
     </div>
   </div>
 
-  <div id="app" class="p-4 max-w-xl mx-auto">
-    <header class="flex justify-between items-center mb-6 no-print">
-      <div>
-        <h2 class="font-extrabold text-xl text-slate-800 italic tracking-tighter">Via Cumbres</h2>
-        <div id="label-acceso" class="text-purple-600 text-[10px] font-black uppercase tracking-widest"></div>
-      </div>
-      <button onclick="location.reload()" class="text-[10px] text-slate-400 font-bold border-b border-slate-300">CAMBIAR PUNTO</button>
+  <div id="app" class="hidden" style="padding: 20px;">
+    <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h2 id="txt-lugar" style="color: #8b5cf6; margin: 0; font-size: 14px; font-weight: bold; border: 1px solid #ddd; padding: 5px 10px; border-radius: 20px;"></h2>
+        <button onclick="location.reload()" style="background: none; border: none; color: #94a3b8; font-size: 12px; text-decoration: underline;">Cambiar</button>
     </header>
 
-    <div id="nav-tabs" class="flex gap-2 mb-6 no-print">
-      <button onclick="tab('form')" id="btn-f" class="flex-1 py-3 rounded-xl font-extrabold transition-all">NUEVO</button>
-      <button onclick="tab('list')" id="btn-l" class="flex-1 py-3 rounded-xl font-extrabold transition-all">HISTORIAL</button>
-    </div>
-
-    <div id="tab-form" class="tab-content no-print">
-      <div class="card p-6">
-        <form id="registroForm" onsubmit="guardar(event)">
-          <select id="tipo" class="input font-bold text-slate-600" required>
-            <option value="">¿QUIÉN INGRESA?</option>
-            <option value="Propietario">PROPIETARIO</option>
-            <option value="Residente">RESIDENTE</option>
-            <option value="Inquilino">INQUILINO</option>
-            <option value="Visita">VISITA / PROVEEDOR</option>
-          </select>
-          <input type="text" id="nombre" placeholder="NOMBRE COMPLETO" class="input" required>
-          <input type="text" id="domicilio" placeholder="DOMICILIO / CASA" class="input" required>
-          <input type="text" id="vehiculo" placeholder="MARCA Y MODELO VEHÍCULO" class="input">
-          <input type="text" id="placa" placeholder="NÚMERO DE PLACA" class="input uppercase font-extrabold tracking-widest">
-          
-          <div class="bg-purple-50 p-4 rounded-xl mb-4 border border-purple-100">
-            <label class="block mb-2 text-[10px] font-black text-purple-700 uppercase">Foto de Evidencia (Opcional):</label>
-            <input type="file" id="foto-input" accept="image/*" capture="environment" class="text-xs text-slate-500 w-full file:mr-3 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-purple-600 file:text-white">
-          </div>
-          
-          <button type="submit" id="btn-submit" class="btn-main">CONFIRMAR REGISTRO</button>
+    <div class="card">
+        <form id="formReg" onsubmit="guardarDatos(event)">
+            <select id="tipo" class="input" required>
+                <option value="">¿QUIÉN ENTRA?</option>
+                <option value="Propietario">PROPIETARIO</option>
+                <option value="Residente">RESIDENTE</option>
+                <option value="Inquilino">INQUILINO</option>
+                <option value="Visita">VISITA / PROVEEDOR</option>
+            </select>
+            <input type="text" id="nombre" placeholder="Nombre Completo" class="input" required>
+            <input type="text" id="domicilio" placeholder="Casa / Depto" class="input" required>
+            <input type="text" id="vehiculo" placeholder="Marca/Modelo Vehículo" class="input">
+            <input type="text" id="placa" placeholder="Placas" class="input" style="text-transform: uppercase;">
+            
+            <p style="font-size: 12px; color: #64748b; margin-bottom: 5px;">FOTO DE EVIDENCIA:</p>
+            <input type="file" id="foto" accept="image/*" capture="environment" class="input" style="font-size: 12px;">
+            
+            <button type="submit" id="btn-save" class="btn-punto" style="margin-top: 10px;">CONFIRMAR ENTRADA</button>
         </form>
-      </div>
-    </div>
-
-    <div id="tab-list" class="tab-content hidden no-print">
-      <div id="lista" class="space-y-3"></div>
-    </div>
-
-    <div id="print-area" class="hidden card p-8 text-center">
-        <div id="ficha-v"></div>
-        <div class="mt-8 space-y-3 no-print">
-          <button onclick="window.print()" class="btn-main">IMPRIMIR TICKET</button>
-          <button onclick="tab('form')" class="w-full py-2 text-slate-400 text-xs font-bold uppercase tracking-widest">Volver al inicio</button>
-        </div>
     </div>
   </div>
 
   <script>
-    let miAcceso = '';
-    let db = [];
+    let puntoActual = "";
 
-    async function iniciar(lugar) {
-      miAcceso = lugar;
-      document.getElementById('setup').style.display = 'none';
-      document.getElementById('app').classList.add('active');
-      document.getElementById('label-acceso').innerText = "📍 " + lugar;
-      tab('form');
-      await cargarDatos();
+    function iniciarApp(lugar) {
+        puntoActual = lugar;
+        document.getElementById('setup').classList.add('hidden');
+        document.getElementById('app').classList.remove('hidden');
+        document.getElementById('txt-lugar').innerText = "📍 " + lugar;
+        
+        window.dataSdk.init({
+            onDataChanged: (data) => { console.log("Datos cargados"); }
+        });
     }
 
-    async function cargarDatos() {
-      await window.dataSdk.init({
-        onDataChanged: (data) => {
-          db = data.sort((a,b) => new Date(b.fecha) - new Date(a.fecha));
-          dibujarHistorial();
+    async function guardarDatos(e) {
+        e.preventDefault();
+        const btn = document.getElementById('btn-save');
+        btn.innerText = "GUARDANDO...";
+        btn.disabled = true;
+
+        try {
+            const fotoFile = document.getElementById('foto').files[0];
+            let b64 = "";
+            if(fotoFile) {
+                const reader = new FileReader();
+                b64 = await new Promise(res => {
+                    reader.onload = () => res(reader.result);
+                    reader.readAsDataURL(fotoFile);
+                });
+            }
+
+            const registro = {
+                acceso: puntoActual,
+                tipo: document.getElementById('tipo').value,
+                nombre: document.getElementById('nombre').value,
+                domicilio: document.getElementById('domicilio').value,
+                vehiculo: document.getElementById('vehiculo').value,
+                placa: document.getElementById('placa').value.toUpperCase(),
+                foto: b64,
+                fecha: new Date().toISOString()
+            };
+
+            const res = await window.dataSdk.create(registro);
+            if(res.isOk) {
+                alert("¡REGISTRO EXITOSO!");
+                location.reload(); // Refresca para nuevo registro
+            }
+        } catch (error) {
+            alert("Error: " + error);
+        } finally {
+            btn.innerText = "CONFIRMAR ENTRADA";
+            btn.disabled = false;
         }
-      });
-    }
-
-    function tab(name) {
-      document.getElementById('tab-form').style.display = name === 'form' ? 'block' : 'none';
-      document.getElementById('tab-list').style.display = name === 'list' ? 'block' : 'none';
-      document.getElementById('print-area').style.display = name === 'print' ? 'block' : 'none';
-      
-      const f = document.getElementById('btn-f');
-      const l = document.getElementById('btn-l');
-      
-      f.className = name === 'form' ? "flex-1 py-3 rounded-xl font-extrabold bg-purple-600 text-white shadow-lg" : "flex-1 py-3 rounded-xl font-extrabold bg-white text-slate-400 border border-slate-200";
-      l.className = name === 'list' ? "flex-1 py-3 rounded-xl font-extrabold bg-purple-600 text-white shadow-lg" : "flex-1 py-3 rounded-xl font-extrabold bg-white text-slate-400 border border-slate-200";
-    }
-
-    async function guardar(e) {
-      e.preventDefault();
-      const btn = document.getElementById('btn-submit');
-      btn.innerText = "GUARDANDO...";
-      btn.disabled = true;
-
-      try {
-        const file = document.getElementById('foto-input').files[0];
-        let b64 = "";
-        if (file) b64 = await toBase64(file);
-
-        const r = {
-          acceso: miAcceso,
-          tipo: document.getElementById('tipo').value,
-          nombre: document.getElementById('nombre').value,
-          domicilio: document.getElementById('domicilio').value,
-          vehiculo: document.getElementById('vehiculo').value || 'N/A',
-          placa: document.getElementById('placa').value.toUpperCase() || 'PEATONAL',
-          foto: b64,
-          fecha: new Date().toISOString(),
-          estado: 'DENTRO'
-        };
-
-        const res = await window.dataSdk.create(r);
-        if(res.isOk) {
-          document.getElementById('registroForm').reset();
-          mostrarFicha(res.data.__backendId);
-        }
-      } catch (err) { alert("Error: " + err); }
-      finally { btn.innerText = "CONFIRMAR REGISTRO"; btn.disabled = false; }
-    }
-
-    const toBase64 = f => new Promise((res, rej) => {
-      const r = new FileReader();
-      r.readAsDataURL(f);
-      r.onload = () => res(r.result);
-      r.onerror = e => rej(e);
-    });
-
-    function dibujarHistorial() {
-      const lista = document.getElementById('lista');
-      lista.innerHTML = db.map(r => `
-        <div onclick="mostrarFicha('${r.__backendId}')" class="card p-4 flex justify-between items-center text-xs border-l-4 border-purple-500">
-          <div>
-            <p class="font-black text-purple-600 uppercase text-[9px] tracking-widest">${r.acceso}</p>
-            <p class="text-sm font-extrabold text-slate-800">${r.nombre}</p>
-            <p class="text-slate-400 font-bold uppercase">${r.placa} • ${r.tipo}</p>
-          </div>
-          <span class="bg-green-100 text-green-700 px-2 py-1 rounded-lg font-black text-[9px]">DENTRO</span>
-        </div>
-      `).join('');
-    }
-
-    function mostrarFicha(id) {
-      const r = db.find(i => i.__backendId === id);
-      if(!r) return;
-      tab('print');
-      document.getElementById('ficha-v').innerHTML = `
-        <div class="mb-6">
-            <h2 class="text-2xl font-black text-slate-900 tracking-tighter uppercase">Pase de Entrada</h2>
-            <p class="text-purple-600 font-black text-xs tracking-widest">VIA CUMBRES</p>
-        </div>
-        <div class="text-left text-sm space-y-4 mb-6 bg-slate-50 p-6 rounded-2xl border border-slate-100">
-          <div><p class="text-slate-400 font-bold text-[10px] uppercase">Persona:</p><p class="font-extrabold text-slate-800 text-base">${r.nombre}</p></div>
-          <div class="grid grid-cols-2 gap-4">
-            <div><p class="text-slate-400 font-bold text-[10px] uppercase">Tipo:</p><p class="font-bold">${r.tipo}</p></div>
-            <div><p class="text-slate-400 font-bold text-[10px] uppercase">Punto:</p><p class="font-bold">${r.acceso}</p></div>
-          </div>
-          <div><p class="text-slate-400 font-bold text-[10px] uppercase">Destino:</p><p class="font-bold">${r.domicilio}</p></div>
-          <div><p class="text-slate-400 font-bold text-[10px] uppercase">Vehículo:</p><p class="font-bold">${r.vehiculo} - [${r.placa}]</p></div>
-          <p class="text-[10px] text-slate-400 pt-2 border-t border-slate-200">${new Date(r.fecha).toLocaleString()}</p>
-        </div>
-        ${r.foto ? `<img src="${r.foto}" class="w-full rounded-2xl shadow-xl border-4 border-white mb-2">` : ''}
-      `;
     }
   </script>
  </body>
