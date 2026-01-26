@@ -5,127 +5,129 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Ingresos Via Cumbres</title>
   
-  <script src="./_sdk/data_sdk.js"></script>
-  <script src="./_sdk/element_sdk.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="/_sdk/data_sdk.js"></script>
   
   <style>
     body { font-family: sans-serif; background-color: #f8fafc; color: #1e293b; margin: 0; }
-    .seccion { display: none; padding: 20px; }
+    .card { background: white; border-radius: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; }
+    .btn-punto { background: #8b5cf6; color: white; width: 100%; padding: 22px; margin-bottom: 15px; border-radius: 16px; font-weight: bold; font-size: 18px; border: none; cursor: pointer; }
+    .input-field { width: 100%; padding: 15px; margin-bottom: 12px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 16px; box-sizing: border-box; }
+    .hidden { display: none; }
     .visible { display: block !important; }
-    .btn-punto { background: #8b5cf6; color: white; width: 100%; padding: 22px; margin-bottom: 15px; border-radius: 16px; font-size: 18px; font-weight: bold; border: none; box-shadow: 0 4px 12px rgba(139, 92, 246, 0.2); }
-    .input-box { width: 100%; padding: 15px; margin-bottom: 12px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 16px; box-sizing: border-box; }
-    .btn-verde { background: #10b981; color: white; width: 100%; padding: 20px; border-radius: 12px; font-size: 18px; font-weight: bold; border: none; }
   </style>
  </head>
  <body>
 
-  <div id="pantalla-inicio" class="seccion visible">
-    <div style="text-align: center; margin-bottom: 40px; margin-top: 30px;">
-        <h1 style="font-size: 28px; font-weight: 800; margin-bottom: 0;">INGRESOS</h1>
-        <h2 style="color: #8b5cf6; font-weight: 800; margin-top: 0;">VIA CUMBRES</h2>
+  <div id="seccion-inicio" class="p-6 text-center visible">
+    <div class="mb-10 mt-10">
+        <h1 class="text-3xl font-black text-slate-900">INGRESOS</h1>
+        <h2 class="text-purple-600 font-bold tracking-widest uppercase">Via Cumbres</h2>
     </div>
-    <button onclick="seleccionar('Acceso 1')" class="btn-punto">ACCESO 1</button>
-    <button onclick="seleccionar('Acceso 2')" class="btn-punto">ACCESO 2</button>
-    <button onclick="seleccionar('Peatonal')" class="btn-punto">PEATONAL</button>
+    <div class="max-w-xs mx-auto">
+        <button onclick="configurarAcceso('Acceso 1')" class="btn-punto">ACCESO 1</button>
+        <button onclick="configurarAcceso('Acceso 2')" class="btn-punto">ACCESO 2</button>
+        <button onclick="configurarAcceso('Peatonal')" class="btn-punto">PEATONAL</button>
+    </div>
   </div>
 
-  <div id="pantalla-form" class="seccion">
-    <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
-        <span id="tag-lugar" style="background: #f5f3ff; color: #7c3aed; padding: 5px 12px; border-radius: 20px; font-weight: bold; font-size: 12px; border: 1px solid #ddd6fe;"></span>
-        <button onclick="location.reload()" style="color: #94a3b8; font-size: 12px; background:none; border:none; text-decoration:underline;">Cambiar</button>
+  <div id="seccion-app" class="p-4 hidden max-w-lg mx-auto">
+    <div class="flex justify-between items-center mb-6">
+        <span id="badge-lugar" class="bg-purple-100 text-purple-700 px-4 py-1 rounded-full text-xs font-bold"></span>
+        <button onclick="location.reload()" class="text-xs text-slate-400 underline">Cambiar</button>
     </div>
 
-    <form id="formularioIngreso" onsubmit="registrar(event)">
-        <select id="tipo" class="input-box" required>
-            <option value="">¿QUIÉN INGRESA?</option>
-            <option value="Propietario">PROPIETARIO</option>
-            <option value="Residente">RESIDENTE</option>
-            <option value="Visita">VISITA / PROVEEDOR</option>
-        </select>
-        <input type="text" id="nombre" placeholder="Nombre Completo" class="input-box" required>
-        <input type="text" id="domicilio" placeholder="Casa / Depto" class="input-box" required>
-        <input type="text" id="placa" placeholder="Placas (Opcional)" class="input-box" style="text-transform: uppercase;">
-        
-        <div style="background: white; padding: 15px; border-radius: 12px; border: 2px solid #e2e8f0; margin-bottom: 15px;">
-            <p style="font-size: 11px; font-weight: bold; color: #94a3b8; margin-bottom: 8px;">FOTO DE EVIDENCIA:</p>
-            <input type="file" id="foto" accept="image/*" capture="environment" style="width: 100%; font-size: 14px;">
-        </div>
+    <div class="card p-6">
+        <form id="formRegistro" onsubmit="procesarRegistro(event)">
+            <select id="f-tipo" class="input-field font-bold" required>
+                <option value="">¿QUIÉN ENTRA?</option>
+                <option value="Propietario">PROPIETARIO</option>
+                <option value="Residente">RESIDENTE</option>
+                <option value="Visita">VISITA / PROVEEDOR</option>
+            </select>
+            <input type="text" id="f-nombre" placeholder="Nombre Completo" class="input-field" required>
+            <input type="text" id="f-domicilio" placeholder="Casa / Departamento" class="input-field" required>
+            <input type="text" id="f-placa" placeholder="Placas (Opcional)" class="input-field uppercase">
+            
+            <div class="bg-slate-50 p-4 rounded-xl mb-4 border border-dashed border-slate-300">
+                <p class="text-[10px] font-bold text-slate-400 mb-2 uppercase">Foto de Evidencia:</p>
+                <input type="file" id="f-foto" accept="image/*" capture="environment" class="text-xs w-full">
+            </div>
 
-        <button type="submit" id="btn-save" class="btn-verde">CONFIRMAR REGISTRO</button>
-    </form>
+            <button type="submit" id="btn-final" class="w-full bg-emerald-500 text-white p-5 rounded-xl font-bold text-lg">CONFIRMAR REGISTRO</button>
+        </form>
+    </div>
   </div>
 
   <script>
-    // CORRECCIÓN CRÍTICA DE INICIALIZACIÓN
-    let puntoSeleccionado = "";
-    
-    // Función de inicialización forzada
-    async function inicializarSDK() {
+    let puntoControl = "";
+
+    // Intentar inicializar el SDK apenas cargue la página
+    async function initBaseDeDatos() {
         if (window.dataSdk) {
             try {
                 await window.dataSdk.init();
-                console.log("Base de datos conectada");
+                console.log("Conectado a la base de datos.");
             } catch (e) {
-                console.error("Error al conectar DB:", e);
+                console.error("Reintentando conexión...");
+                setTimeout(initBaseDeDatos, 2000);
             }
         }
     }
+    initBaseDeDatos();
 
-    function seleccionar(lugar) {
-        puntoSeleccionado = lugar;
-        document.getElementById('pantalla-inicio').classList.remove('visible');
-        document.getElementById('pantalla-form').classList.add('visible');
-        document.getElementById('tag-lugar').innerText = "📍 " + lugar;
-        // Inicializamos justo al seleccionar el punto
-        inicializarSDK();
+    function configurarAcceso(valor) {
+        puntoControl = valor;
+        document.getElementById('seccion-inicio').classList.remove('visible');
+        document.getElementById('seccion-app').classList.add('visible');
+        document.getElementById('badge-lugar').innerText = "📍 " + valor;
     }
 
-    async function registrar(e) {
+    async function procesarRegistro(e) {
         e.preventDefault();
         
-        // Verificación de seguridad reforzada
-        if (typeof window.dataSdk === 'undefined' || !window.dataSdk.create) {
-            alert("El motor de base de datos no ha cargado. Por favor, revisa tu conexión y refresca la página.");
+        // Verificación definitiva del SDK
+        if (!window.dataSdk || typeof window.dataSdk.create !== 'function') {
+            alert("⚠️ El sistema de datos sigue cargando. Espera 5 segundos e intenta de nuevo.");
             return;
         }
 
-        const btn = document.getElementById('btn-save');
+        const btn = document.getElementById('btn-final');
         btn.innerText = "GUARDANDO...";
         btn.disabled = true;
 
         try {
-            const fotoFile = document.getElementById('foto').files[0];
-            let b64 = "";
+            const archivo = document.getElementById('f-foto').files[0];
+            let imagenB64 = "";
 
-            if (fotoFile) {
-                b64 = await new Promise((resolve) => {
+            if (archivo) {
+                imagenB64 = await new Promise(r => {
                     const reader = new FileReader();
-                    reader.onload = () => resolve(reader.result);
-                    reader.readAsDataURL(fotoFile);
+                    reader.onload = () => r(reader.result);
+                    reader.readAsDataURL(archivo);
                 });
             }
 
-            const registro = {
-                acceso: puntoSeleccionado,
-                tipo: document.getElementById('tipo').value,
-                nombre: document.getElementById('nombre').value,
-                domicilio: document.getElementById('domicilio').value,
-                placa: document.getElementById('placa').value.toUpperCase() || "N/A",
-                foto: b64,
-                fecha: new Date().toISOString()
+            const payload = {
+                punto: puntoControl,
+                tipo: document.getElementById('f-tipo').value,
+                nombre: document.getElementById('f-nombre').value,
+                domicilio: document.getElementById('f-domicilio').value,
+                placa: document.getElementById('f-placa').value.toUpperCase() || "N/A",
+                foto: imagenB64,
+                timestamp: new Date().toISOString()
             };
 
-            const respuesta = await window.dataSdk.create(registro);
+            const respuesta = await window.dataSdk.create(payload);
+            
             if (respuesta.isOk) {
-                alert("✅ REGISTRO GUARDADO EN VIA CUMBRES");
-                document.getElementById('formularioIngreso').reset();
+                alert("✅ REGISTRO GUARDADO CORRECTAMENTE");
                 location.reload();
             } else {
-                alert("Hubo un problema al guardar: " + respuesta.error);
+                alert("❌ Error del servidor: " + (respuesta.error || "Desconocido"));
             }
         } catch (err) {
-            alert("Error de sistema: " + err.message);
+            alert("❌ Error técnico: " + err.message);
         } finally {
             btn.innerText = "CONFIRMAR REGISTRO";
             btn.disabled = false;
