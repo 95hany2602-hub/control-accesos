@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="es">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Acceso Elite Pro - Control Interno</title>
+  
+  <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/3003/3003192.png">
+  <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3003/3003192.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="/_sdk/data_sdk.js"></script>
+  <script src="/_sdk/element_sdk.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="https://unpkg.com/html5-qrcode"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  
+  <style>
+    :root { --primary: #8b5cf6; }
+    body { font-family: 'Inter', sans-serif; background: #0f172a; color: #f8fafc; overflow-x: hidden; }
+    .glass-card { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px; }
+    .input-field { background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(139, 92, 246, 0.3); transition: all 0.3s; }
+    .input-field:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1); }
+    #reader { border-radius: 16px; overflow: hidden; background: #000; width: 100%; max-width: 350px; margin: 0 auto; }
+    #v-prev { border-radius: 16px; background: #000; width: 100%; transform: scaleX(-1); }
+    
+    .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 50; align-items: center; justify-content: center; padding: 20px; }
+    .modal.active { display: flex; }
+
+    @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .slide-up { animation: slideUp 0.4s ease-out; }
+
+    @media print {
+      body * { visibility: hidden; }
+      #print-section, #print-section * { visibility: visible; }
+      #print-section { position: absolute; left: 0; top: 0; width: 100%; color: #000 !important; background: #fff !important; padding: 20px; font-family: monospace; }
+      .no-print { display: none !important; }
+      #qr-area img { margin: 0 auto; }
+    }
+  </style>
+ </head>
+ <body>
+  <div id="app" class="max-w-4xl mx-auto p-4 md:p-6 no-print">
+    
+    <header class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+      <h1 class="text-2xl font-extrabold tracking-tighter">ACCESO<span class="text-purple-500">INTERNO</span></h1>
+      <div class="flex gap-2 p-1 bg-slate-800/50 rounded-xl">
+        <button onclick="switchTab('registro')" class="px-4 py-2 rounded-lg text-sm font-bold transition-all" id="btn-reg">ENTRADA</button>
+        <button onclick="switchTab('historial')" class="px-4 py-2 rounded-lg text-sm font-bold transition-all" id="btn-his">HISTORIAL</button>
+        <button onclick="startQRScanner()" class="px-4 py-2 rounded-lg text-sm font-bold bg-purple-600 hover:bg-purple-500 flex items-center gap-2">
+          <span>📷</span> ESCANEAR QR
+        </button>
+      </div>
+    </header>
+
+    <main id="content"></main>
+
+    <div id="modal-scanner" class="modal">
+      <div class="glass-card w-full max-w-sm p-6 text-center">
+        <h2 class="text-lg font-bold mb-4 italic">ESCANEAR TICKET DE SALIDA</h2>
+        <div id="reader"></div>
+        <button onclick="stopQRScanner()" class="mt-6 text-red-400 font-bold text-xs tracking-widest">CANCELAR</button>
+      </div>
+    </div>
+
+    <div id="modal-ficha" class="modal">
+      <div id="print-section" class="glass-card w-full max-w-sm p-8 relative overflow-hidden">
+        <button onclick="closeModal()" class="absolute top-4 right-4 text-2xl no-print text-slate-500">&times;</button>
+        <div id="ficha-content"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let records = [];
+    let currentTab = 'registro';
+    let html5QrCode = null;
+    let stream = null;
+    let capturedPhoto = null;
+
+    async function init() {
+      await window.dataSdk.init({
+        onDataChanged: (data) => {
+          records = data.sort((a, b) => new Date(b.fecha_registro) - new Date(a.fecha_registro));
+          render();
+        }
+      });
+      render();
+    }
+
+    function render() {
+      const container = document.getElementById('content');
+      document.getElementById('btn-reg').className = currentTab === 'registro' ? 'px-4 py-2 rounded-lg text-sm font-bold bg-slate-700' : 'px-4 py-2 rounded-lg text-sm font-bold';
+      document.getElementById('btn-his').className = currentTab === 'historial' ? 'px-4 py-2 rounded-lg text-sm font-bold bg-slate-700' : 'px-4 py-2 rounded-lg text-sm font-bold';
+
+      if (currentTab === 'registro') {
+        renderForm(container);
+      } else {
+        renderList(container);
+      }
+    }
+
+    function renderForm(container) {
+      container.innerHTML = `
+        <div class="glass-card p-6 md:p-8 max-w-lg mx-auto slide-up">
+          <h2 class="text-xl font-bold mb-6 flex items-center gap-2">📝 Registrar Ingreso</h2>
+          <form onsubmit="saveEntry(event)" class="space-y-4">
+            <input type="text" id="nombre" placeholder="Nombre completo" class="input-field w-full p-4 rounded-xl text-white" required>
+            <input type="text" id="placa" placeholder="Placa / Identificación" class="input-field w-full p-4 rounded-xl uppercase font-bold text-purple-400 tracking-widest" required>
+            
+            <div class="border-2 border-dashed border-white/10 rounded-2xl p-4 text-center">
+              <div id="cam-box" class="hidden mb-4"><video id="v-prev" autoplay playsinline></video></div>
+              <div id="p-prev" class="flex justify-center items-center min-h-[100px] text-[10px] opacity-40 uppercase tracking-widest italic">Sin evidencia fotográfica</div>
+              <div class="flex justify-center gap-6 mt-3">
+                <button type="button" onclick="openCam()" class="text-[10px] font-bold text-purple-400 hover:underline">📷 ABRIR CÁMARA</button>
+                <button type="button" id="snap" onclick="snap()" class="hidden text-[10px] font-bold text-white bg-purple-600 px-4 py-1 rounded-full">CAPTURAR</button>
+              </div>
+            </div>
+
+            <button type="submit" class="w-full bg-purple-600 hover:bg-purple-500 p-4 rounded-xl font-bold shadow-lg transition-all active:scale-95 mt-4">
+              CONFIRMAR REGISTRO
+            </button>
+          </form>
+        </div>
+      `;
+    }
+
+    async function openCam() {
+      document.getElementById('cam-box').classList.remove('hidden');
+      document.getElementById('snap').classList.remove('hidden');
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+        document.getElementById('v-prev').srcObject = stream;
+      } catch (e) { alert("Error al acceder a la cámara"); }
+    }
+
+    function snap() {
+      const v = document.getElementById('v-prev');
+      const c = document.createElement('canvas');
+      c.width = v.videoWidth; c.height = v.videoHeight;
+      c.getContext('2d').drawImage(v, 0, 0);
+      capturedPhoto = c.toDataURL('image/jpeg');
+      document.getElementById('p-prev').innerHTML = `<img src="${capturedPhoto}" class="rounded-lg h-32 mx-auto border-2 border-purple-500 object-cover">`;
+      stream.getTracks().forEach(t => t.stop());
+      document.getElementById('cam-box').classList.add('hidden');
+      document.getElementById('snap').classList.add('hidden');
+    }
+
+    async function saveEntry(e) {
+      e.preventDefault();
+      const placa = document.getElementById('placa').value.toUpperCase();
+      if (records.find(r => r.placa === placa && r.estado === 'Dentro')) {
+        return alert("⚠️ ALERTA: Este vehículo ya se encuentra dentro del recinto.");
+      }
+      
+      const payload = {
+        nombre: document.getElementById('nombre').value,
+        placa: placa,
+        foto: capturedPhoto,
+        estado: 'Dentro',
+        fecha_registro: new Date().toISOString()
+      };
+      const res = await window.dataSdk.create(payload);
+      if (res.isOk) { 
+        capturedPhoto = null; 
+        switchTab('historial'); 
+      }
+    }
+
+    function renderList(container) {
+      container.innerHTML = `
+        <div class="grid gap-3 slide-up">
+          ${records.length === 0 ? '<p class="text-center opacity-30 py-10">No hay registros hoy</p>' : ''}
+          ${records.map(r => `
+            <div onclick="viewFicha('${r.__backendId}')" class="glass-card p-4 flex justify-between items-center cursor-pointer border-l-4 ${r.estado === 'Dentro' ? 'border-green-500' : 'border-slate-600 opacity-50'}">
+              <div>
+                <p class="text-[10px] font-bold text-purple-400 uppercase tracking-tighter">${r.placa}</p>
+                <h4 class="font-bold">${r.nombre}</h4>
+                <p class="text-[9px] opacity-40">${new Date(r.fecha_registro).toLocaleString()}</p>
+              </div>
+              <span class="text-[10px] font-bold px-2 py-1 rounded bg-white/5">${r.estado}</span>
+            </div>`).join('')}
+        </div>`;
+    }
+
+    function startQRScanner() {
+      document.getElementById('modal-scanner').classList.add('active');
+      html5QrCode = new Html5Qrcode("reader");
+      html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, (txt) => {
+        stopQRScanner();
+        viewFicha(txt);
+      }).catch(() => alert("Cámara no disponible"));
+    }
+
+    function stopQRScanner() {
+      if (html5QrCode) html5QrCode.stop().then(() => document.getElementById('modal-scanner').classList.remove('active'));
+    }
+
+    function viewFicha(id) {
+      const r = records.find(rec => rec.__backendId === id);
+      if (!r) return alert("Ticket no encontrado");
+      
+      const content = document.getElementById('ficha-content');
+      content.innerHTML = `
+        <div class="text-center">
+          <h2 class="text-xl font-black text-black print:block hidden mb-4">PASE DE ACCESO</h2>
+          <div class="text-left space-y-2 my-4 text-black text-sm">
+            <p><strong>NOMBRE:</strong> ${r.nombre}</p>
+            <p><strong>PLACA:</strong> <span class="text-purple-600 font-bold">${r.placa}</span></p>
+            <p><strong>INGRESO:</strong> ${new Date(r.fecha_registro).toLocaleString()}</p>
+            <p><strong>ESTADO:</strong> ${r.estado}</p>
+          </div>
+          <div id="qr-area" class="flex justify-center my-6 bg-white p-2 rounded-xl shadow-sm border"></div>
+          ${r.foto ? `<img src="${r.foto}" class="w-full rounded-xl mb-4 no-print shadow-lg border border-white/10">` : ''}
+          <div class="flex gap-2 no-print">
+            <button onclick="window.print()" class="flex-1 bg-white text-black p-4 rounded-xl font-bold border border-slate-200">🖨️ IMPRIMIR</button>
+            ${r.estado === 'Dentro' ? `<button onclick="marcarSalida('${r.__backendId}')" class="flex-1 bg-red-600 text-white p-4 rounded-xl font-bold">MARCAR SALIDA</button>` : ''}
+          </div>
+          <p class="text-[8px] text-black/40 mt-4 print:block hidden uppercase">Control de Seguridad Interno - V 2.0</p>
+        </div>`;
+
+      new QRCode(document.getElementById("qr-area"), { text: r.__backendId, width: 150, height: 150 });
+      document.getElementById('modal-ficha').classList.add('active');
+    }
+
+    async function marcarSalida(id) {
+      if(confirm("¿Registrar salida definitiva?")) {
+        await window.dataSdk.update({ __backendId: id }, { estado: 'Fuera', fecha_salida: new Date().toISOString() });
+        closeModal();
+      }
+    }
+
+    function closeModal() { document.getElementById('modal-ficha').classList.remove('active'); }
+    function switchTab(tab) { currentTab = tab; render(); }
+
+    init();
+  </script>
+ </body>
+</html>
