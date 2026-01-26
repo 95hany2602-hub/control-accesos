@@ -3,256 +3,177 @@
  <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Acceso Elite Pro - Control Multi-Acceso</title>
+  <title>Acceso Interno</title>
   
-  <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/3003/3003192.png">
-  <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3003/3003192.png">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="/_sdk/data_sdk.js"></script>
   <script src="/_sdk/element_sdk.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-  <script src="https://unpkg.com/html5-qrcode"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
   
   <style>
-    :root { --primary: #8b5cf6; }
-    body { font-family: 'Inter', sans-serif; background: #0f172a; color: #f8fafc; overflow-x: hidden; }
-    .glass-card { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px; }
-    .input-field { background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(139, 92, 246, 0.3); transition: all 0.3s; color: white; }
-    .input-field:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1); }
-    .btn-primary { background: var(--primary); color: white; font-weight: bold; border-radius: 12px; transition: all 0.2s; }
-    .btn-primary:active { transform: scale(0.95); }
-    #reader { border-radius: 16px; overflow: hidden; background: #000; width: 100%; max-width: 350px; margin: 0 auto; }
-    #v-prev { border-radius: 16px; background: #000; width: 100%; transform: scaleX(-1); }
-    .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 100; align-items: center; justify-content: center; padding: 20px; }
-    .modal.active { display: flex; }
-
-    @media print {
-      body * { visibility: hidden; }
-      #print-section, #print-section * { visibility: visible; }
-      #print-section { position: absolute; left: 0; top: 0; width: 100%; color: #000 !important; background: #fff !important; padding: 20px; font-family: monospace; }
-    }
+    body { font-family: 'Inter', sans-serif; background: #0f172a; color: white; }
+    .glass { background: rgba(30, 41, 59, 0.7); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 15px; }
+    .input { background: #1e293b; border: 1px solid #334155; padding: 12px; border-radius: 10px; width: 100%; color: white; margin-bottom: 10px; }
+    .btn-save { background: #8b5cf6; width: 100%; padding: 15px; border-radius: 10px; font-weight: bold; margin-top: 10px; }
+    #setup, #app { display: none; }
+    .active { display: block !important; }
+    @media print { .no-print { display: none; } #print-area { display: block; color: black; background: white; padding: 20px; } }
   </style>
  </head>
  <body>
 
-  <div id="setup-screen" class="fixed inset-0 z-[200] bg-slate-950 flex items-center justify-center p-6">
-    <div class="glass-card w-full max-w-sm p-8 text-center">
-      <div class="mb-6 text-4xl">🏢</div>
-      <h2 class="text-2xl font-bold mb-2">Punto de Control</h2>
-      <p class="text-sm opacity-60 mb-8">Seleccione dónde se encuentra trabajando ahora mismo:</p>
-      <div class="space-y-4">
-        <button onclick="setAccess('Acceso 1')" class="w-full p-4 glass-card hover:bg-purple-600/20 border-purple-500/50 text-left flex justify-between items-center">
-          <span>Acceso Vehicular 1</span> ➜
-        </button>
-        <button onclick="setAccess('Acceso 2')" class="w-full p-4 glass-card hover:bg-purple-600/20 border-purple-500/50 text-left flex justify-between items-center">
-          <span>Acceso Vehicular 2</span> ➜
-        </button>
-        <button onclick="setAccess('Peatonal')" class="w-full p-4 glass-card hover:bg-purple-600/20 border-purple-500/50 text-left flex justify-between items-center">
-          <span>Acceso Peatonal</span> ➜
-        </button>
-      </div>
+  <div id="setup" class="active p-6 min-h-screen flex flex-col justify-center items-center">
+    <h1 class="text-2xl font-black mb-6">PUNTO DE CONTROL</h1>
+    <div class="space-y-4 w-full max-w-xs">
+      <button onclick="iniciar('Acceso 1')" class="btn-save text-lg">ACCESO 1</button>
+      <button onclick="iniciar('Acceso 2')" class="btn-save text-lg">ACCESO 2</button>
+      <button onclick="iniciar('Peatonal')" class="btn-save text-lg">PEATONAL</button>
     </div>
   </div>
 
-  <div id="app" class="max-w-4xl mx-auto p-4 md:p-6 no-print hidden">
-    
-    <header class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+  <div id="app" class="p-4 max-w-xl mx-auto">
+    <header class="flex justify-between items-center mb-6 no-print">
       <div>
-        <h1 class="text-2xl font-extrabold tracking-tighter">ACCESO<span class="text-purple-500">INTERNO</span></h1>
-        <p id="current-pos" class="text-[10px] font-bold text-purple-400 uppercase tracking-widest cursor-pointer" onclick="location.reload()">📍 CAMBIAR PUNTO</p>
+        <h2 class="font-black text-xl">REGISTRO</h2>
+        <p id="label-acceso" class="text-purple-400 text-xs font-bold uppercase"></p>
       </div>
-      <div class="flex gap-2 p-1 bg-slate-800/50 rounded-xl">
-        <button onclick="switchTab('registro')" class="px-4 py-2 rounded-lg text-sm font-bold transition-all" id="btn-reg">ENTRADA</button>
-        <button onclick="switchTab('historial')" class="px-4 py-2 rounded-lg text-sm font-bold transition-all" id="btn-his">HISTORIAL</button>
-        <button onclick="startQRScanner()" class="px-4 py-2 rounded-lg text-sm font-bold bg-purple-600 hover:bg-purple-500 flex items-center gap-2">
-          <span>📷</span> QR
-        </button>
-      </div>
+      <button onclick="location.reload()" class="text-[10px] bg-slate-800 px-3 py-1 rounded">CAMBIAR PUNTO</button>
     </header>
 
-    <main id="content"></main>
+    <div class="flex gap-2 mb-6 no-print">
+      <button onclick="tab('form')" class="flex-1 bg-slate-800 py-2 rounded-lg font-bold">NUEVO</button>
+      <button onclick="tab('list')" class="flex-1 bg-slate-800 py-2 rounded-lg font-bold">HISTORIAL</button>
+    </div>
 
-    <div id="modal-scanner" class="modal">
-      <div class="glass-card w-full max-w-sm p-6 text-center">
-        <h2 class="text-lg font-bold mb-4 text-white uppercase italic">Escanear Ticket</h2>
-        <div id="reader"></div>
-        <button onclick="stopQRScanner()" class="mt-6 text-red-400 font-bold text-xs">CANCELAR</button>
+    <div id="tab-form" class="tab-content active no-print">
+      <div class="glass p-5">
+        <form onsubmit="guardar(event)">
+          <select id="tipo" class="input" required>
+            <option value="">TIPO DE PERSONA</option>
+            <option value="Propietario">PROPIETARIO</option>
+            <option value="Residente">RESIDENTE</option>
+            <option value="Inquilino">INQUILINO</option>
+            <option value="Visita">VISITA / PROVEEDOR</option>
+          </select>
+          <input type="text" id="nombre" placeholder="NOMBRE COMPLETO" class="input" required>
+          <input type="text" id="domicilio" placeholder="DOMICILIO / CASA" class="input" required>
+          <input type="text" id="vehiculo" placeholder="MARCA Y MODELO VEHÍCULO" class="input">
+          <input type="text" id="placa" placeholder="PLACA" class="input uppercase font-bold">
+          
+          <label class="block mb-2 text-xs font-bold text-slate-400">FOTO DE EVIDENCIA:</label>
+          <input type="file" id="foto-input" accept="image/*" capture="environment" class="input text-xs">
+          
+          <button type="submit" class="btn-save">CONFIRMAR REGISTRO</button>
+        </form>
       </div>
     </div>
 
-    <div id="modal-ficha" class="modal">
-      <div id="print-section" class="glass-card w-full max-w-sm p-8 relative overflow-hidden">
-        <button onclick="closeModal()" class="absolute top-4 right-4 text-2xl no-print text-slate-500">&times;</button>
-        <div id="ficha-content"></div>
-      </div>
+    <div id="tab-list" class="tab-content hidden no-print">
+      <div id="lista" class="space-y-3"></div>
+    </div>
+
+    <div id="print-area" class="hidden glass p-6 text-center mt-6">
+        <div id="ficha-v"></div>
+        <button onclick="window.print()" class="no-print btn-save bg-green-600 mt-4">IMPRIMIR TICKET</button>
+        <button onclick="tab('form')" class="no-print text-xs mt-4 block mx-auto opacity-50">CERRAR</button>
     </div>
   </div>
 
   <script>
-    let records = [];
-    let currentTab = 'registro';
-    let currentAccess = '';
-    let html5QrCode = null;
-    let stream = null;
-    let capturedPhoto = null;
+    let miAcceso = '';
+    let db = [];
 
-    function setAccess(val) {
-      currentAccess = val;
-      document.getElementById('setup-screen').classList.add('hidden');
-      document.getElementById('app').classList.remove('hidden');
-      document.getElementById('current-pos').innerText = `📍 ${currentAccess}`;
-      init();
+    function iniciar(lugar) {
+      miAcceso = lugar;
+      document.getElementById('setup').classList.remove('active');
+      document.getElementById('app').classList.add('active');
+      document.getElementById('label-acceso').innerText = "📍 " + lugar;
+      cargarDatos();
     }
 
-    async function init() {
+    async function cargarDatos() {
       await window.dataSdk.init({
         onDataChanged: (data) => {
-          records = data.sort((a, b) => new Date(b.fecha_registro) - new Date(a.fecha_registro));
-          render();
+          db = data.sort((a,b) => new Date(b.fecha) - new Date(a.fecha));
+          dibujarHistorial();
         }
       });
     }
 
-    function render() {
-      const container = document.getElementById('content');
-      document.getElementById('btn-reg').className = currentTab === 'registro' ? 'px-4 py-2 rounded-lg text-sm font-bold bg-slate-700' : 'px-4 py-2 rounded-lg text-sm font-bold';
-      document.getElementById('btn-his').className = currentTab === 'historial' ? 'px-4 py-2 rounded-lg text-sm font-bold bg-slate-700' : 'px-4 py-2 rounded-lg text-sm font-bold';
-      currentTab === 'registro' ? renderForm(container) : renderList(container);
+    function tab(name) {
+      document.getElementById('tab-form').classList.toggle('active', name === 'form');
+      document.getElementById('tab-list').classList.toggle('active', name === 'list');
+      document.getElementById('print-area').classList.toggle('active', name === 'print');
+      if(name === 'form') document.getElementById('print-area').classList.remove('active');
     }
 
-    function renderForm(container) {
-      container.innerHTML = `
-        <div class="glass-card p-6 md:p-8 max-w-lg mx-auto">
-          <h2 class="text-xl font-bold mb-6 flex items-center gap-2">📝 Registro de Ingreso</h2>
-          <form onsubmit="saveEntry(event)" class="space-y-4">
-            <select id="tipo" class="input-field w-full p-4 rounded-xl font-semibold" required>
-              <option value="">Tipo de Persona</option>
-              <option value="Propietario">Propietario</option>
-              <option value="Residente">Residente</option>
-              <option value="Inquilino">Inquilino</option>
-              <option value="Visita">Visita / Proveedor</option>
-            </select>
-            <input type="text" id="nombre" placeholder="Nombre completo" class="input-field w-full p-4 rounded-xl" required>
-            <input type="text" id="domicilio" placeholder="Domicilio / Destino" class="input-field w-full p-4 rounded-xl" required>
-            <div class="grid grid-cols-2 gap-2">
-              <input type="text" id="marca" placeholder="Vehículo/Marca" class="input-field p-4 rounded-xl">
-              <input type="text" id="placa" placeholder="Placas" class="input-field p-4 rounded-xl uppercase font-bold text-purple-400">
-            </div>
-            
-            <div class="border-2 border-dashed border-white/10 rounded-2xl p-4 text-center">
-              <div id="cam-box" class="hidden mb-4"><video id="v-prev" autoplay playsinline></video></div>
-              <div id="p-prev" class="flex justify-center items-center min-h-[80px] text-[10px] opacity-40 uppercase italic">Foto de Evidencia</div>
-              <div class="flex justify-center gap-6 mt-3">
-                <button type="button" onclick="openCam()" class="text-[10px] font-bold text-purple-400">📷 ABRIR CÁMARA</button>
-                <button type="button" id="snap" onclick="snap()" class="hidden text-[10px] font-bold text-white bg-purple-600 px-4 py-1 rounded-full">CAPTURAR</button>
-              </div>
-            </div>
-
-            <button type="submit" class="w-full btn-primary p-4 shadow-lg shadow-purple-500/20">CONFIRMAR E IMPRIMIR</button>
-          </form>
-        </div>`;
-    }
-
-    async function openCam() {
-      document.getElementById('cam-box').classList.remove('hidden');
-      document.getElementById('snap').classList.remove('hidden');
-      stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
-      document.getElementById('v-prev').srcObject = stream;
-    }
-
-    function snap() {
-      const v = document.getElementById('v-prev');
-      const c = document.createElement('canvas');
-      c.width = v.videoWidth; c.height = v.videoHeight;
-      c.getContext('2d').drawImage(v, 0, 0);
-      capturedPhoto = c.toDataURL('image/jpeg');
-      document.getElementById('p-prev').innerHTML = `<img src="${capturedPhoto}" class="rounded-lg h-32 mx-auto border-2 border-purple-500 object-cover">`;
-      stream.getTracks().forEach(t => t.stop());
-      document.getElementById('cam-box').classList.add('hidden');
-      document.getElementById('snap').classList.add('hidden');
-    }
-
-    async function saveEntry(e) {
+    async function guardar(e) {
       e.preventDefault();
-      const payload = {
+      const fotoFile = document.getElementById('foto-input').files[0];
+      let fotoBase64 = "";
+
+      if (fotoFile) {
+        fotoBase64 = await toBase64(fotoFile);
+      }
+
+      const registro = {
+        acceso: miAcceso,
         tipo: document.getElementById('tipo').value,
         nombre: document.getElementById('nombre').value,
         domicilio: document.getElementById('domicilio').value,
-        vehiculo: `${document.getElementById('marca').value || 'N/A'}`,
-        placa: document.getElementById('placa').value.toUpperCase() || 'PEATONAL',
-        foto: capturedPhoto,
-        punto_acceso: currentAccess, // AQUÍ SE GUARDA EL ACCESO SELECCIONADO
-        estado: 'Dentro',
-        fecha_registro: new Date().toISOString()
+        vehiculo: document.getElementById('vehiculo').value,
+        placa: document.getElementById('placa').value.toUpperCase(),
+        foto: fotoBase64,
+        fecha: new Date().toISOString(),
+        estado: 'DENTRO'
       };
-      const res = await window.dataSdk.create(payload);
-      if (res.isOk) { capturedPhoto = null; viewFicha(res.data.__backendId); }
-    }
 
-    function renderList(container) {
-      container.innerHTML = `
-        <div class="grid gap-3">
-          ${records.map(r => `
-            <div onclick="viewFicha('${r.__backendId}')" class="glass-card p-4 flex justify-between items-center border-l-4 ${r.estado === 'Dentro' ? 'border-green-500' : 'border-slate-600 opacity-50'}">
-              <div>
-                <p class="text-[9px] font-bold text-purple-400">${r.punto_acceso} | ${r.tipo}</p>
-                <h4 class="font-bold">${r.nombre}</h4>
-                <p class="text-[9px] opacity-60">${r.placa} - Destino: ${r.domicilio}</p>
-              </div>
-              <span class="text-[8px] font-bold px-2 py-1 rounded bg-white/10 uppercase">${r.estado}</span>
-            </div>`).join('')}
-        </div>`;
-    }
-
-    function startQRScanner() {
-      document.getElementById('modal-scanner').classList.add('active');
-      html5QrCode = new Html5Qrcode("reader");
-      html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, (txt) => {
-        stopQRScanner(); viewFicha(txt);
-      }).catch(() => alert("Error al iniciar cámara"));
-    }
-
-    function stopQRScanner() { if (html5QrCode) html5QrCode.stop().then(() => document.getElementById('modal-scanner').classList.remove('active')); }
-
-    function viewFicha(id) {
-      const r = records.find(rec => rec.__backendId === id);
-      if (!r) return alert("Error al cargar datos");
-      const content = document.getElementById('ficha-content');
-      content.innerHTML = `
-        <div class="text-center">
-          <h2 class="text-xl font-black text-black">PASE DE ACCESO</h2>
-          <p class="text-[10px] text-black font-bold uppercase mb-4">📍 ${r.punto_acceso}</p>
-          <div class="text-left space-y-1 my-4 text-black text-[11px] border-y border-black/10 py-2">
-            <p><strong>NOMBRE:</strong> ${r.nombre}</p>
-            <p><strong>TIPO:</strong> ${r.tipo}</p>
-            <p><strong>DESTINO:</strong> ${r.domicilio}</p>
-            <p><strong>PLACA:</strong> ${r.placa}</p>
-            <p><strong>FECHA:</strong> ${new Date(r.fecha_registro).toLocaleString()}</p>
-          </div>
-          <div id="qr-area" class="flex justify-center my-4 bg-white p-2 border"></div>
-          ${r.foto ? `<img src="${r.foto}" class="w-full rounded-xl mb-4 no-print border border-black/10">` : ''}
-          <div class="flex gap-2 no-print">
-            <button onclick="window.print()" class="flex-1 bg-black text-white p-4 rounded-xl font-bold">IMPRIMIR</button>
-            ${r.estado === 'Dentro' ? `<button onclick="marcarSalida('${r.__backendId}')" class="flex-1 bg-red-600 text-white p-4 rounded-xl font-bold">SALIDA</button>` : ''}
-          </div>
-        </div>`;
-      new QRCode(document.getElementById("qr-area"), { text: r.__backendId, width: 130, height: 130 });
-      document.getElementById('modal-ficha').classList.add('active');
-    }
-
-    async function marcarSalida(id) {
-      if(confirm("¿Registrar salida definitiva?")) {
-        await window.dataSdk.update({ __backendId: id }, { estado: 'Fuera', fecha_salida: new Date().toISOString() });
-        closeModal();
+      const res = await window.dataSdk.create(registro);
+      if(res.isOk) {
+        alert("REGISTRADO");
+        e.target.reset();
+        mostrarFicha(res.data.__backendId);
       }
     }
 
-    function closeModal() { document.getElementById('modal-ficha').classList.remove('active'); }
-    function switchTab(tab) { currentTab = tab; render(); }
+    const toBase64 = file => new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = error => reject(error);
+    });
+
+    function dibujarHistorial() {
+      const lista = document.getElementById('lista');
+      lista.innerHTML = db.map(r => `
+        <div onclick="mostrarFicha('${r.__backendId}')" class="glass p-3 flex justify-between items-center text-xs">
+          <div>
+            <p class="font-bold text-purple-400">${r.acceso} - ${r.placa}</p>
+            <p class="text-sm">${r.nombre}</p>
+          </div>
+          <span class="bg-white/10 px-2 py-1 rounded">${r.estado}</span>
+        </div>
+      `).join('');
+    }
+
+    function mostrarFicha(id) {
+      const r = db.find(i => i.__backendId === id);
+      if(!r) return;
+      tab('print');
+      document.getElementById('ficha-v').innerHTML = `
+        <h2 class="text-xl font-black mb-4">PASE DE ACCESO</h2>
+        <div class="text-left text-sm space-y-2 mb-4">
+          <p><strong>PUNTO:</strong> ${r.acceso}</p>
+          <p><strong>NOMBRE:</strong> ${r.nombre}</p>
+          <p><strong>TIPO:</strong> ${r.tipo}</p>
+          <p><strong>DESTINO:</strong> ${r.domicilio}</p>
+          <p><strong>VEHÍCULO:</strong> ${r.vehiculo}</p>
+          <p><strong>PLACA:</strong> ${r.placa}</p>
+          <p><strong>FECHA:</strong> ${new Date(r.fecha).toLocaleString()}</p>
+        </div>
+        ${r.foto ? `<img src="${r.foto}" class="w-full rounded-lg no-print">` : ''}
+      `;
+    }
   </script>
  </body>
 </html>
