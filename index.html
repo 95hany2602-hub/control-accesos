@@ -3,134 +3,79 @@
  <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Ingresos Via Cumbres</title>
+  <title>Via Cumbres - Control</title>
   
+  <script src="_sdk/data_sdk.js"></script>
+  <script src="_sdk/element_sdk.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="/_sdk/data_sdk.js"></script>
-  
-  <style>
-    body { font-family: sans-serif; background-color: #f8fafc; color: #1e293b; margin: 0; }
-    .card { background: white; border-radius: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; }
-    .btn-punto { background: #8b5cf6; color: white; width: 100%; padding: 22px; margin-bottom: 15px; border-radius: 16px; font-weight: bold; font-size: 18px; border: none; cursor: pointer; }
-    .input-field { width: 100%; padding: 15px; margin-bottom: 12px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 16px; box-sizing: border-box; }
-    .hidden { display: none; }
-    .visible { display: block !important; }
-  </style>
  </head>
- <body>
+ <body class="bg-slate-50 font-sans">
 
-  <div id="seccion-inicio" class="p-6 text-center visible">
-    <div class="mb-10 mt-10">
-        <h1 class="text-3xl font-black text-slate-900">INGRESOS</h1>
-        <h2 class="text-purple-600 font-bold tracking-widest uppercase">Via Cumbres</h2>
-    </div>
-    <div class="max-w-xs mx-auto">
-        <button onclick="configurarAcceso('Acceso 1')" class="btn-punto">ACCESO 1</button>
-        <button onclick="configurarAcceso('Acceso 2')" class="btn-punto">ACCESO 2</button>
-        <button onclick="configurarAcceso('Peatonal')" class="btn-punto">PEATONAL</button>
+  <div id="pantalla-inicio" class="p-8 text-center">
+    <h1 class="text-3xl font-black text-slate-900 mb-1">INGRESOS</h1>
+    <h2 class="text-purple-600 font-extrabold tracking-widest text-sm mb-10 uppercase">Via Cumbres</h2>
+    
+    <div class="space-y-4 max-w-xs mx-auto">
+        <button onclick="entrar('Acceso 1')" class="w-full bg-purple-600 text-white p-5 rounded-2xl font-bold shadow-lg">ACCESO 1</button>
+        <button onclick="entrar('Acceso 2')" class="w-full bg-purple-600 text-white p-5 rounded-2xl font-bold shadow-lg">ACCESO 2</button>
     </div>
   </div>
 
-  <div id="seccion-app" class="p-4 hidden max-w-lg mx-auto">
+  <div id="pantalla-registro" class="hidden p-6">
     <div class="flex justify-between items-center mb-6">
-        <span id="badge-lugar" class="bg-purple-100 text-purple-700 px-4 py-1 rounded-full text-xs font-bold"></span>
-        <button onclick="location.reload()" class="text-xs text-slate-400 underline">Cambiar</button>
+        <span id="txt-punto" class="bg-purple-100 text-purple-700 px-3 py-1 rounded-full font-bold text-xs"></span>
+        <button onclick="location.reload()" class="text-xs text-slate-400 underline">Volver</button>
     </div>
 
-    <div class="card p-6">
-        <form id="formRegistro" onsubmit="procesarRegistro(event)">
-            <select id="f-tipo" class="input-field font-bold" required>
-                <option value="">¿QUIÉN ENTRA?</option>
-                <option value="Propietario">PROPIETARIO</option>
-                <option value="Residente">RESIDENTE</option>
-                <option value="Visita">VISITA / PROVEEDOR</option>
-            </select>
-            <input type="text" id="f-nombre" placeholder="Nombre Completo" class="input-field" required>
-            <input type="text" id="f-domicilio" placeholder="Casa / Departamento" class="input-field" required>
-            <input type="text" id="f-placa" placeholder="Placas (Opcional)" class="input-field uppercase">
-            
-            <div class="bg-slate-50 p-4 rounded-xl mb-4 border border-dashed border-slate-300">
-                <p class="text-[10px] font-bold text-slate-400 mb-2 uppercase">Foto de Evidencia:</p>
-                <input type="file" id="f-foto" accept="image/*" capture="environment" class="text-xs w-full">
-            </div>
-
-            <button type="submit" id="btn-final" class="w-full bg-emerald-500 text-white p-5 rounded-xl font-bold text-lg">CONFIRMAR REGISTRO</button>
-        </form>
+    <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
+        <input type="text" id="nombre" placeholder="Nombre de la visita" class="w-full p-4 mb-4 border-2 border-slate-100 rounded-xl focus:border-purple-500 outline-none">
+        <input type="text" id="domicilio" placeholder="Casa / Depto" class="w-full p-4 mb-6 border-2 border-slate-100 rounded-xl focus:border-purple-500 outline-none">
+        
+        <button onclick="enviar()" id="btn-final" class="w-full bg-emerald-500 text-white p-5 rounded-2xl font-bold text-lg shadow-md">
+            CONFIRMAR ENTRADA
+        </button>
     </div>
   </div>
 
   <script>
-    let puntoControl = "";
+    let puntoSeleccionado = "";
 
-    // Intentar inicializar el SDK apenas cargue la página
-    async function initBaseDeDatos() {
-        if (window.dataSdk) {
-            try {
-                await window.dataSdk.init();
-                console.log("Conectado a la base de datos.");
-            } catch (e) {
-                console.error("Reintentando conexión...");
-                setTimeout(initBaseDeDatos, 2000);
-            }
-        }
-    }
-    initBaseDeDatos();
-
-    function configurarAcceso(valor) {
-        puntoControl = valor;
-        document.getElementById('seccion-inicio').classList.remove('visible');
-        document.getElementById('seccion-app').classList.add('visible');
-        document.getElementById('badge-lugar').innerText = "📍 " + valor;
+    function entrar(lugar) {
+        puntoSeleccionado = lugar;
+        document.getElementById('pantalla-inicio').classList.add('hidden');
+        document.getElementById('pantalla-registro').classList.remove('hidden');
+        document.getElementById('txt-punto').innerText = "📍 " + lugar;
+        if(window.dataSdk) window.dataSdk.init();
     }
 
-    async function procesarRegistro(e) {
-        e.preventDefault();
-        
-        // Verificación definitiva del SDK
-        if (!window.dataSdk || typeof window.dataSdk.create !== 'function') {
-            alert("⚠️ El sistema de datos sigue cargando. Espera 5 segundos e intenta de nuevo.");
+    async function enviar() {
+        if (!window.dataSdk) {
+            alert("Error: El sistema aún no carga. Espera 3 segundos.");
             return;
         }
 
-        const btn = document.getElementById('btn-final');
-        btn.innerText = "GUARDANDO...";
-        btn.disabled = true;
+        const b = document.getElementById('btn-final');
+        b.innerText = "GUARDANDO...";
+        b.disabled = true;
+
+        const datos = {
+            punto: puntoSeleccionado,
+            nombre: document.getElementById('nombre').value,
+            domicilio: document.getElementById('domicilio').value,
+            fecha: new Date().toISOString()
+        };
 
         try {
-            const archivo = document.getElementById('f-foto').files[0];
-            let imagenB64 = "";
-
-            if (archivo) {
-                imagenB64 = await new Promise(r => {
-                    const reader = new FileReader();
-                    reader.onload = () => r(reader.result);
-                    reader.readAsDataURL(archivo);
-                });
-            }
-
-            const payload = {
-                punto: puntoControl,
-                tipo: document.getElementById('f-tipo').value,
-                nombre: document.getElementById('f-nombre').value,
-                domicilio: document.getElementById('f-domicilio').value,
-                placa: document.getElementById('f-placa').value.toUpperCase() || "N/A",
-                foto: imagenB64,
-                timestamp: new Date().toISOString()
-            };
-
-            const respuesta = await window.dataSdk.create(payload);
-            
-            if (respuesta.isOk) {
-                alert("✅ REGISTRO GUARDADO CORRECTAMENTE");
+            const res = await window.dataSdk.create(datos);
+            if(res.isOk) {
+                alert("✅ REGISTRO EXITOSO");
                 location.reload();
-            } else {
-                alert("❌ Error del servidor: " + (respuesta.error || "Desconocido"));
             }
-        } catch (err) {
-            alert("❌ Error técnico: " + err.message);
+        } catch(e) {
+            alert("Error: " + e.message);
         } finally {
-            btn.innerText = "CONFIRMAR REGISTRO";
-            btn.disabled = false;
+            b.innerText = "CONFIRMAR ENTRADA";
+            b.disabled = false;
         }
     }
   </script>
