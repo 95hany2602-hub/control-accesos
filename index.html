@@ -10,109 +10,144 @@
   <script src="/_sdk/element_sdk.js"></script>
   
   <style>
-    body { font-family: sans-serif; background: #f8fafc; color: #1e293b; margin: 0; padding: 0; }
-    .btn-punto { background: #8b5cf6; color: white; width: 100%; padding: 20px; border-radius: 15px; font-weight: bold; font-size: 18px; border: none; margin-bottom: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); cursor: pointer; display: block; }
-    .btn-punto:active { background: #7c3aed; transform: scale(0.98); }
-    .card { background: white; border-radius: 20px; padding: 20px; border: 1px solid #e2e8f0; margin-bottom: 20px; }
-    .input { width: 100%; padding: 15px; margin-bottom: 10px; border: 1px solid #cbd5e1; border-radius: 10px; box-sizing: border-box; font-size: 16px; }
-    .hidden { display: none; }
-    #setup { padding: 40px 20px; text-align: center; }
+    body { font-family: sans-serif; background-color: #f8fafc; color: #1e293b; margin: 0; padding: 0; }
+    .seccion { display: none; padding: 20px; }
+    .visible { display: block !important; }
+    .btn-grande { 
+      background-color: #8b5cf6; 
+      color: white; 
+      width: 100%; 
+      padding: 25px; 
+      margin-bottom: 15px; 
+      border-radius: 15px; 
+      font-size: 20px; 
+      font-weight: bold; 
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    .input-box {
+      width: 100%;
+      padding: 15px;
+      margin-bottom: 15px;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      font-size: 16px;
+      box-sizing: border-box;
+    }
+    .btn-confirmar {
+      background-color: #10b981;
+      color: white;
+      width: 100%;
+      padding: 20px;
+      border-radius: 12px;
+      font-size: 18px;
+      font-weight: bold;
+      border: none;
+      margin-top: 10px;
+    }
   </style>
  </head>
  <body>
 
-  <div id="setup">
-    <h1 style="font-size: 28px; margin-bottom: 10px;">Ingresos</h1>
-    <h2 style="color: #8b5cf6; margin-top: 0; margin-bottom: 40px;">VIA CUMBRES</h2>
-    <p style="margin-bottom: 30px; color: #64748b;">Toque su ubicación actual:</p>
-    
-    <div style="max-width: 300px; margin: 0 auto;">
-        <button type="button" onclick="iniciarApp('Acceso 1')" class="btn-punto">ACCESO 1</button>
-        <button type="button" onclick="iniciarApp('Acceso 2')" class="btn-punto">ACCESO 2</button>
-        <button type="button" onclick="iniciarApp('Peatonal')" class="btn-punto">PEATONAL</button>
+  <div id="pantalla-inicio" class="seccion visible">
+    <div style="text-align: center; margin-bottom: 40px; margin-top: 20px;">
+        <h1 style="font-size: 32px; font-weight: 800; margin-bottom: 5px;">Ingresos</h1>
+        <h2 style="color: #8b5cf6; font-weight: 800; margin-top: 0;">VIA CUMBRES</h2>
+        <p style="color: #64748b;">Selecciona tu punto de acceso:</p>
     </div>
+    
+    <button onclick="seleccionarAcceso('Acceso 1')" class="btn-grande">ACCESO 1</button>
+    <button onclick="seleccionarAcceso('Acceso 2')" class="btn-grande">ACCESO 2</button>
+    <button onclick="seleccionarAcceso('Peatonal')" class="btn-grande">PEATONAL</button>
   </div>
 
-  <div id="app" class="hidden" style="padding: 20px;">
-    <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-        <h2 id="txt-lugar" style="color: #8b5cf6; margin: 0; font-size: 14px; font-weight: bold; border: 1px solid #ddd; padding: 5px 10px; border-radius: 20px;"></h2>
-        <button onclick="location.reload()" style="background: none; border: none; color: #94a3b8; font-size: 12px; text-decoration: underline;">Cambiar</button>
-    </header>
-
-    <div class="card">
-        <form id="formReg" onsubmit="guardarDatos(event)">
-            <select id="tipo" class="input" required>
-                <option value="">¿QUIÉN ENTRA?</option>
-                <option value="Propietario">PROPIETARIO</option>
-                <option value="Residente">RESIDENTE</option>
-                <option value="Inquilino">INQUILINO</option>
-                <option value="Visita">VISITA / PROVEEDOR</option>
-            </select>
-            <input type="text" id="nombre" placeholder="Nombre Completo" class="input" required>
-            <input type="text" id="domicilio" placeholder="Casa / Depto" class="input" required>
-            <input type="text" id="vehiculo" placeholder="Marca/Modelo Vehículo" class="input">
-            <input type="text" id="placa" placeholder="Placas" class="input" style="text-transform: uppercase;">
-            
-            <p style="font-size: 12px; color: #64748b; margin-bottom: 5px;">FOTO DE EVIDENCIA:</p>
-            <input type="file" id="foto" accept="image/*" capture="environment" class="input" style="font-size: 12px;">
-            
-            <button type="submit" id="btn-save" class="btn-punto" style="margin-top: 10px;">CONFIRMAR ENTRADA</button>
-        </form>
+  <div id="pantalla-form" class="seccion">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <span id="display-lugar" style="background: #ede9fe; color: #7c3aed; padding: 5px 15px; border-radius: 20px; font-weight: bold; font-size: 14px;"></span>
+        <button onclick="location.reload()" style="background: none; border: none; color: #94a3b8; text-decoration: underline; font-size: 12px;">Cambiar punto</button>
     </div>
+
+    <form id="miFormulario" onsubmit="enviarDatos(event)">
+        <select id="tipo" class="input-box" required>
+            <option value="">¿QUIÉN ENTRA?</option>
+            <option value="Propietario">PROPIETARIO</option>
+            <option value="Residente">RESIDENTE</option>
+            <option value="Inquilino">INQUILINO</option>
+            <option value="Visita">VISITA / PROVEEDOR</option>
+        </select>
+        
+        <input type="text" id="nombre" placeholder="Nombre Completo" class="input-box" required>
+        <input type="text" id="domicilio" placeholder="Casa / Depto" class="input-box" required>
+        <input type="text" id="vehiculo" placeholder="Marca / Modelo" class="input-box">
+        <input type="text" id="placa" placeholder="Placas" class="input-box" style="text-transform: uppercase;">
+        
+        <div style="background: white; padding: 15px; border-radius: 12px; border: 2px solid #e2e8f0; margin-bottom: 15px;">
+            <p style="font-size: 12px; font-weight: bold; color: #64748b; margin-bottom: 10px; text-transform: uppercase;">Foto de Evidencia:</p>
+            <input type="file" id="foto" accept="image/*" capture="environment" style="font-size: 14px; width: 100%;">
+        </div>
+
+        <button type="submit" id="btn-enviar" class="btn-confirmar">CONFIRMAR REGISTRO</button>
+    </form>
   </div>
 
   <script>
-    let puntoActual = "";
+    let puntoSeleccionado = "";
 
-    function iniciarApp(lugar) {
-        puntoActual = lugar;
-        document.getElementById('setup').classList.add('hidden');
-        document.getElementById('app').classList.remove('hidden');
-        document.getElementById('txt-lugar').innerText = "📍 " + lugar;
+    function seleccionarAcceso(lugar) {
+        console.log("Acceso seleccionado: " + lugar);
+        puntoSeleccionado = lugar;
         
-        window.dataSdk.init({
-            onDataChanged: (data) => { console.log("Datos cargados"); }
-        });
+        // Cambio de pantalla
+        document.getElementById('pantalla-inicio').classList.remove('visible');
+        document.getElementById('pantalla-form').classList.add('visible');
+        document.getElementById('display-lugar').innerText = "📍 " + lugar;
+        
+        // Inicializar DB
+        window.dataSdk.init();
     }
 
-    async function guardarDatos(e) {
+    async function enviarDatos(e) {
         e.preventDefault();
-        const btn = document.getElementById('btn-save');
-        btn.innerText = "GUARDANDO...";
-        btn.disabled = true;
+        const boton = document.getElementById('btn-enviar');
+        boton.innerText = "GUARDANDO...";
+        boton.disabled = true;
 
         try {
-            const fotoFile = document.getElementById('foto').files[0];
-            let b64 = "";
-            if(fotoFile) {
-                const reader = new FileReader();
-                b64 = await new Promise(res => {
-                    reader.onload = () => res(reader.result);
-                    reader.readAsDataURL(fotoFile);
+            const archivoFoto = document.getElementById('foto').files[0];
+            let fotoBase64 = "";
+
+            if (archivoFoto) {
+                fotoBase64 = await new Promise((resolve) => {
+                    const reader = new FileReader();
+                    reader.onload = () => resolve(reader.result);
+                    reader.readAsDataURL(archivoFoto);
                 });
             }
 
-            const registro = {
-                acceso: puntoActual,
+            const datos = {
+                acceso: puntoSeleccionado,
                 tipo: document.getElementById('tipo').value,
                 nombre: document.getElementById('nombre').value,
                 domicilio: document.getElementById('domicilio').value,
                 vehiculo: document.getElementById('vehiculo').value,
                 placa: document.getElementById('placa').value.toUpperCase(),
-                foto: b64,
+                foto: fotoBase64,
                 fecha: new Date().toISOString()
             };
 
-            const res = await window.dataSdk.create(registro);
-            if(res.isOk) {
-                alert("¡REGISTRO EXITOSO!");
-                location.reload(); // Refresca para nuevo registro
+            const respuesta = await window.dataSdk.create(datos);
+            if (respuesta.isOk) {
+                alert("✅ REGISTRO GUARDADO");
+                location.reload();
+            } else {
+                alert("❌ Error al guardar. Intenta de nuevo.");
             }
-        } catch (error) {
-            alert("Error: " + error);
+        } catch (err) {
+            alert("Error: " + err);
         } finally {
-            btn.innerText = "CONFIRMAR ENTRADA";
-            btn.disabled = false;
+            boton.innerText = "CONFIRMAR REGISTRO";
+            boton.disabled = false;
         }
     }
   </script>
