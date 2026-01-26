@@ -5,151 +5,125 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Ingresos Via Cumbres</title>
   
-  <script src="https://cdn.tailwindcss.com"></script>
   <script src="/_sdk/data_sdk.js"></script>
   <script src="/_sdk/element_sdk.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
   
   <style>
-    body { font-family: sans-serif; background-color: #f8fafc; color: #1e293b; margin: 0; padding: 0; }
+    body { font-family: sans-serif; background-color: #f8fafc; color: #1e293b; margin: 0; }
     .seccion { display: none; padding: 20px; }
     .visible { display: block !important; }
-    .btn-grande { 
-      background-color: #8b5cf6; 
-      color: white; 
-      width: 100%; 
-      padding: 25px; 
-      margin-bottom: 15px; 
-      border-radius: 15px; 
-      font-size: 20px; 
-      font-weight: bold; 
-      border: none;
-      cursor: pointer;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-    }
-    .input-box {
-      width: 100%;
-      padding: 15px;
-      margin-bottom: 15px;
-      border: 2px solid #e2e8f0;
-      border-radius: 12px;
-      font-size: 16px;
-      box-sizing: border-box;
-    }
-    .btn-confirmar {
-      background-color: #10b981;
-      color: white;
-      width: 100%;
-      padding: 20px;
-      border-radius: 12px;
-      font-size: 18px;
-      font-weight: bold;
-      border: none;
-      margin-top: 10px;
-    }
+    .btn-punto { background: #8b5cf6; color: white; width: 100%; padding: 22px; margin-bottom: 15px; border-radius: 16px; font-size: 18px; font-weight: bold; border: none; box-shadow: 0 4px 12px rgba(139, 92, 246, 0.2); }
+    .input-box { width: 100%; padding: 15px; margin-bottom: 12px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 16px; box-sizing: border-box; }
+    .btn-verde { background: #10b981; color: white; width: 100%; padding: 20px; border-radius: 12px; font-size: 18px; font-weight: bold; border: none; }
   </style>
  </head>
  <body>
 
   <div id="pantalla-inicio" class="seccion visible">
-    <div style="text-align: center; margin-bottom: 40px; margin-top: 20px;">
-        <h1 style="font-size: 32px; font-weight: 800; margin-bottom: 5px;">Ingresos</h1>
+    <div style="text-align: center; margin-bottom: 40px; margin-top: 30px;">
+        <h1 style="font-size: 28px; font-weight: 800; margin-bottom: 0;">INGRESOS</h1>
         <h2 style="color: #8b5cf6; font-weight: 800; margin-top: 0;">VIA CUMBRES</h2>
-        <p style="color: #64748b;">Selecciona tu punto de acceso:</p>
     </div>
-    
-    <button onclick="seleccionarAcceso('Acceso 1')" class="btn-grande">ACCESO 1</button>
-    <button onclick="seleccionarAcceso('Acceso 2')" class="btn-grande">ACCESO 2</button>
-    <button onclick="seleccionarAcceso('Peatonal')" class="btn-grande">PEATONAL</button>
+    <button onclick="seleccionar('Acceso 1')" class="btn-punto">ACCESO 1</button>
+    <button onclick="seleccionar('Acceso 2')" class="btn-punto">ACCESO 2</button>
+    <button onclick="seleccionar('Peatonal')" class="btn-punto">PEATONAL</button>
   </div>
 
   <div id="pantalla-form" class="seccion">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-        <span id="display-lugar" style="background: #ede9fe; color: #7c3aed; padding: 5px 15px; border-radius: 20px; font-weight: bold; font-size: 14px;"></span>
-        <button onclick="location.reload()" style="background: none; border: none; color: #94a3b8; text-decoration: underline; font-size: 12px;">Cambiar punto</button>
+    <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
+        <span id="tag-lugar" style="background: #f5f3ff; color: #7c3aed; padding: 5px 12px; border-radius: 20px; font-weight: bold; font-size: 12px; border: 1px solid #ddd6fe;"></span>
+        <button onclick="location.reload()" style="color: #94a3b8; font-size: 12px; background:none; border:none; text-decoration:underline;">Cambiar</button>
     </div>
 
-    <form id="miFormulario" onsubmit="enviarDatos(event)">
+    <form onsubmit="registrar(event)">
         <select id="tipo" class="input-box" required>
-            <option value="">¿QUIÉN ENTRA?</option>
+            <option value="">¿QUIÉN INGRESA?</option>
             <option value="Propietario">PROPIETARIO</option>
             <option value="Residente">RESIDENTE</option>
-            <option value="Inquilino">INQUILINO</option>
             <option value="Visita">VISITA / PROVEEDOR</option>
         </select>
-        
         <input type="text" id="nombre" placeholder="Nombre Completo" class="input-box" required>
         <input type="text" id="domicilio" placeholder="Casa / Depto" class="input-box" required>
-        <input type="text" id="vehiculo" placeholder="Marca / Modelo" class="input-box">
-        <input type="text" id="placa" placeholder="Placas" class="input-box" style="text-transform: uppercase;">
+        <input type="text" id="placa" placeholder="Placas (Opcional)" class="input-box" style="text-transform: uppercase;">
         
         <div style="background: white; padding: 15px; border-radius: 12px; border: 2px solid #e2e8f0; margin-bottom: 15px;">
-            <p style="font-size: 12px; font-weight: bold; color: #64748b; margin-bottom: 10px; text-transform: uppercase;">Foto de Evidencia:</p>
-            <input type="file" id="foto" accept="image/*" capture="environment" style="font-size: 14px; width: 100%;">
+            <p style="font-size: 11px; font-weight: bold; color: #94a3b8; margin-bottom: 8px;">FOTO DE EVIDENCIA:</p>
+            <input type="file" id="foto" accept="image/*" capture="environment" style="width: 100%; font-size: 14px;">
         </div>
 
-        <button type="submit" id="btn-enviar" class="btn-confirmar">CONFIRMAR REGISTRO</button>
+        <button type="submit" id="btn-save" class="btn-verde">CONFIRMAR REGISTRO</button>
     </form>
   </div>
 
   <script>
-    let puntoSeleccionado = "";
+    // 1. INICIALIZACIÓN INMEDIATA
+    let punto = "";
+    
+    // Forzamos la carga del SDK al abrir la página
+    window.addEventListener('load', () => {
+        if(window.dataSdk) {
+            window.dataSdk.init().catch(e => console.error("Error SDK:", e));
+        }
+    });
 
-    function seleccionarAcceso(lugar) {
-        console.log("Acceso seleccionado: " + lugar);
-        puntoSeleccionado = lugar;
-        
-        // Cambio de pantalla
+    function seleccionar(lugar) {
+        punto = lugar;
         document.getElementById('pantalla-inicio').classList.remove('visible');
         document.getElementById('pantalla-form').classList.add('visible');
-        document.getElementById('display-lugar').innerText = "📍 " + lugar;
-        
-        // Inicializar DB
-        window.dataSdk.init();
+        document.getElementById('tag-lugar').innerText = "📍 " + lugar;
     }
 
-    async function enviarDatos(e) {
+    async function registrar(e) {
         e.preventDefault();
-        const boton = document.getElementById('btn-enviar');
-        boton.innerText = "GUARDANDO...";
-        boton.disabled = true;
+        
+        // Verificación de seguridad
+        if (!window.dataSdk || !window.dataSdk.create) {
+            alert("Error: El sistema de base de datos no cargó. Refresca la página.");
+            return;
+        }
+
+        const btn = document.getElementById('btn-save');
+        btn.innerText = "GUARDANDO...";
+        btn.disabled = true;
 
         try {
-            const archivoFoto = document.getElementById('foto').files[0];
-            let fotoBase64 = "";
+            const fotoFile = document.getElementById('foto').files[0];
+            let b64 = "";
 
-            if (archivoFoto) {
-                fotoBase64 = await new Promise((resolve) => {
-                    const reader = new FileReader();
-                    reader.onload = () => resolve(reader.result);
-                    reader.readAsDataURL(archivoFoto);
+            if (fotoFile) {
+                b64 = await new Promise((res) => {
+                    const r = new FileReader();
+                    r.onload = () => res(r.result);
+                    r.readAsDataURL(fotoFile);
                 });
             }
 
-            const datos = {
-                acceso: puntoSeleccionado,
+            const r = {
+                acceso: punto,
                 tipo: document.getElementById('tipo').value,
                 nombre: document.getElementById('nombre').value,
                 domicilio: document.getElementById('domicilio').value,
-                vehiculo: document.getElementById('vehiculo').value,
-                placa: document.getElementById('placa').value.toUpperCase(),
-                foto: fotoBase64,
+                placa: document.getElementById('placa').value.toUpperCase() || "N/A",
+                foto: b64,
                 fecha: new Date().toISOString()
             };
 
-            const respuesta = await window.dataSdk.create(datos);
-            if (respuesta.isOk) {
-                alert("✅ REGISTRO GUARDADO");
+            const res = await window.dataSdk.create(r);
+            if (res.isOk) {
+                alert("✅ REGISTRO EXITOSO");
                 location.reload();
             } else {
-                alert("❌ Error al guardar. Intenta de nuevo.");
+                alert("❌ Error de servidor: " + res.error);
             }
         } catch (err) {
-            alert("Error: " + err);
+            alert("Error técnico: " + err.message);
         } finally {
-            boton.innerText = "CONFIRMAR REGISTRO";
-            boton.disabled = false;
+            btn.innerText = "CONFIRMAR REGISTRO";
+            btn.disabled = false;
         }
     }
   </script>
  </body>
 </html>
+
