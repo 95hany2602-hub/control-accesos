@@ -3,54 +3,58 @@
  <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Acceso Interno Pro</title>
+  <title>Ingresos Via Cumbres</title>
   
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="/_sdk/data_sdk.js"></script>
   <script src="/_sdk/element_sdk.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
   
   <style>
-    body { font-family: 'Inter', sans-serif; background: #0f172a; color: white; }
-    .glass { background: rgba(30, 41, 59, 0.7); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 15px; }
-    .input { background: #1e293b; border: 1px solid #334155; padding: 12px; border-radius: 10px; width: 100%; color: white; margin-bottom: 10px; }
-    .btn-save { background: #8b5cf6; width: 100%; padding: 15px; border-radius: 10px; font-weight: bold; transition: all 0.2s; }
-    .btn-save:disabled { opacity: 0.5; cursor: not-allowed; }
+    body { font-family: 'Plus Jakarta Sans', sans-serif; background: #f8fafc; color: #1e293b; -webkit-tap-highlight-color: transparent; }
+    .card { background: white; border: 1px solid #e2e8f0; border-radius: 20px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03); }
+    .input { background: #ffffff; border: 1.5px solid #e2e8f0; padding: 14px; border-radius: 12px; width: 100%; color: #1e293b; margin-bottom: 12px; font-size: 16px; }
+    .input:focus { border-color: #8b5cf6; outline: none; box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1); }
+    .btn-main { background: #8b5cf6; color: white; width: 100%; padding: 16px; border-radius: 12px; font-weight: 800; transition: all 0.2s; }
+    .btn-main:active { transform: scale(0.97); background: #7c3aed; }
     #setup, #app { display: none; }
     .active { display: block !important; }
-    @media print { .no-print { display: none !important; } #print-area { display: block !important; color: black; background: white; padding: 0; } }
+    @media print { .no-print { display: none !important; } #print-area { display: block !important; border: none; box-shadow: none; } }
   </style>
  </head>
  <body>
 
   <div id="setup" class="active p-6 min-h-screen flex flex-col justify-center items-center">
-    <h1 class="text-2xl font-black mb-6">PUNTO DE CONTROL</h1>
+    <div class="text-center mb-10">
+        <h1 class="text-3xl font-extrabold text-slate-900 tracking-tighter">INGRESOS</h1>
+        <p class="text-purple-600 font-bold tracking-widest text-sm">VIA CUMBRES</p>
+    </div>
     <div class="space-y-4 w-full max-w-xs">
-      <button onclick="iniciar('Acceso 1')" class="btn-save text-lg w-full">ACCESO 1</button>
-      <button onclick="iniciar('Acceso 2')" class="btn-save text-lg w-full">ACCESO 2</button>
-      <button onclick="iniciar('Peatonal')" class="btn-save text-lg w-full">PEATONAL</button>
+      <button onclick="iniciar('Acceso 1')" class="btn-main shadow-xl shadow-purple-200">ACCESO 1</button>
+      <button onclick="iniciar('Acceso 2')" class="btn-main shadow-xl shadow-purple-200">ACCESO 2</button>
+      <button onclick="iniciar('Peatonal')" class="btn-main shadow-xl shadow-purple-200">PEATONAL</button>
     </div>
   </div>
 
   <div id="app" class="p-4 max-w-xl mx-auto">
     <header class="flex justify-between items-center mb-6 no-print">
       <div>
-        <h2 class="font-black text-xl text-purple-400">REGISTRO</h2>
-        <p id="label-acceso" class="text-xs font-bold uppercase opacity-70"></p>
+        <h2 class="font-extrabold text-xl text-slate-800 italic tracking-tighter">Via Cumbres</h2>
+        <div id="label-acceso" class="text-purple-600 text-[10px] font-black uppercase tracking-widest"></div>
       </div>
-      <button onclick="location.reload()" class="text-[10px] bg-slate-800 px-3 py-1 rounded border border-slate-700">CAMBIAR PUNTO</button>
+      <button onclick="location.reload()" class="text-[10px] text-slate-400 font-bold border-b border-slate-300">CAMBIAR PUNTO</button>
     </header>
 
-    <div class="flex gap-2 mb-6 no-print">
-      <button onclick="tab('form')" class="flex-1 bg-slate-800 py-2 rounded-lg font-bold border border-slate-700">NUEVO</button>
-      <button onclick="tab('list')" class="flex-1 bg-slate-800 py-2 rounded-lg font-bold border border-slate-700">HISTORIAL</button>
+    <div id="nav-tabs" class="flex gap-2 mb-6 no-print">
+      <button onclick="tab('form')" id="btn-f" class="flex-1 py-3 rounded-xl font-extrabold transition-all">NUEVO</button>
+      <button onclick="tab('list')" id="btn-l" class="flex-1 py-3 rounded-xl font-extrabold transition-all">HISTORIAL</button>
     </div>
 
-    <div id="tab-form" class="tab-content active no-print">
-      <div class="glass p-5">
+    <div id="tab-form" class="tab-content no-print">
+      <div class="card p-6">
         <form id="registroForm" onsubmit="guardar(event)">
-          <select id="tipo" class="input" required>
-            <option value="">TIPO DE PERSONA</option>
+          <select id="tipo" class="input font-bold text-slate-600" required>
+            <option value="">¿QUIÉN INGRESA?</option>
             <option value="Propietario">PROPIETARIO</option>
             <option value="Residente">RESIDENTE</option>
             <option value="Inquilino">INQUILINO</option>
@@ -59,12 +63,14 @@
           <input type="text" id="nombre" placeholder="NOMBRE COMPLETO" class="input" required>
           <input type="text" id="domicilio" placeholder="DOMICILIO / CASA" class="input" required>
           <input type="text" id="vehiculo" placeholder="MARCA Y MODELO VEHÍCULO" class="input">
-          <input type="text" id="placa" placeholder="PLACA" class="input uppercase font-bold">
+          <input type="text" id="placa" placeholder="NÚMERO DE PLACA" class="input uppercase font-extrabold tracking-widest">
           
-          <label class="block mb-2 text-[10px] font-bold text-slate-400 uppercase">Foto (Opcional):</label>
-          <input type="file" id="foto-input" accept="image/*" capture="environment" class="input text-xs">
+          <div class="bg-purple-50 p-4 rounded-xl mb-4 border border-purple-100">
+            <label class="block mb-2 text-[10px] font-black text-purple-700 uppercase">Foto de Evidencia (Opcional):</label>
+            <input type="file" id="foto-input" accept="image/*" capture="environment" class="text-xs text-slate-500 w-full file:mr-3 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-purple-600 file:text-white">
+          </div>
           
-          <button type="submit" id="btn-submit" class="btn-save">CONFIRMAR REGISTRO</button>
+          <button type="submit" id="btn-submit" class="btn-main">CONFIRMAR REGISTRO</button>
         </form>
       </div>
     </div>
@@ -73,11 +79,11 @@
       <div id="lista" class="space-y-3"></div>
     </div>
 
-    <div id="print-area" class="hidden glass p-6 text-center">
+    <div id="print-area" class="hidden card p-8 text-center">
         <div id="ficha-v"></div>
-        <div class="mt-6 flex flex-col gap-3 no-print">
-          <button onclick="window.print()" class="btn-save bg-green-600">IMPRIMIR TICKET</button>
-          <button onclick="tab('form')" class="text-xs opacity-50 underline">REGRESAR AL FORMULARIO</button>
+        <div class="mt-8 space-y-3 no-print">
+          <button onclick="window.print()" class="btn-main">IMPRIMIR TICKET</button>
+          <button onclick="tab('form')" class="w-full py-2 text-slate-400 text-xs font-bold uppercase tracking-widest">Volver al inicio</button>
         </div>
     </div>
   </div>
@@ -88,9 +94,10 @@
 
     async function iniciar(lugar) {
       miAcceso = lugar;
-      document.getElementById('setup').classList.remove('active');
+      document.getElementById('setup').style.display = 'none';
       document.getElementById('app').classList.add('active');
       document.getElementById('label-acceso').innerText = "📍 " + lugar;
+      tab('form');
       await cargarDatos();
     }
 
@@ -107,66 +114,63 @@
       document.getElementById('tab-form').style.display = name === 'form' ? 'block' : 'none';
       document.getElementById('tab-list').style.display = name === 'list' ? 'block' : 'none';
       document.getElementById('print-area').style.display = name === 'print' ? 'block' : 'none';
+      
+      const f = document.getElementById('btn-f');
+      const l = document.getElementById('btn-l');
+      
+      f.className = name === 'form' ? "flex-1 py-3 rounded-xl font-extrabold bg-purple-600 text-white shadow-lg" : "flex-1 py-3 rounded-xl font-extrabold bg-white text-slate-400 border border-slate-200";
+      l.className = name === 'list' ? "flex-1 py-3 rounded-xl font-extrabold bg-purple-600 text-white shadow-lg" : "flex-1 py-3 rounded-xl font-extrabold bg-white text-slate-400 border border-slate-200";
     }
 
     async function guardar(e) {
       e.preventDefault();
       const btn = document.getElementById('btn-submit');
-      btn.innerText = "PROCESANDO...";
+      btn.innerText = "GUARDANDO...";
       btn.disabled = true;
 
       try {
-        const fotoFile = document.getElementById('foto-input').files[0];
-        let fotoBase64 = "";
+        const file = document.getElementById('foto-input').files[0];
+        let b64 = "";
+        if (file) b64 = await toBase64(file);
 
-        if (fotoFile) {
-          fotoBase64 = await toBase64(fotoFile);
-        }
-
-        const registro = {
+        const r = {
           acceso: miAcceso,
           tipo: document.getElementById('tipo').value,
           nombre: document.getElementById('nombre').value,
           domicilio: document.getElementById('domicilio').value,
           vehiculo: document.getElementById('vehiculo').value || 'N/A',
           placa: document.getElementById('placa').value.toUpperCase() || 'PEATONAL',
-          foto: fotoBase64,
+          foto: b64,
           fecha: new Date().toISOString(),
           estado: 'DENTRO'
         };
 
-        const res = await window.dataSdk.create(registro);
+        const res = await window.dataSdk.create(r);
         if(res.isOk) {
           document.getElementById('registroForm').reset();
           mostrarFicha(res.data.__backendId);
-        } else {
-          alert("Error al guardar en base de datos.");
         }
-      } catch (err) {
-        alert("Error crítico: " + err);
-      } finally {
-        btn.innerText = "CONFIRMAR REGISTRO";
-        btn.disabled = false;
-      }
+      } catch (err) { alert("Error: " + err); }
+      finally { btn.innerText = "CONFIRMAR REGISTRO"; btn.disabled = false; }
     }
 
-    const toBase64 = file => new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = () => resolve(reader.result);
-      reader.onerror = error => reject(error);
+    const toBase64 = f => new Promise((res, rej) => {
+      const r = new FileReader();
+      r.readAsDataURL(f);
+      r.onload = () => res(r.result);
+      r.onerror = e => rej(e);
     });
 
     function dibujarHistorial() {
       const lista = document.getElementById('lista');
       lista.innerHTML = db.map(r => `
-        <div onclick="mostrarFicha('${r.__backendId}')" class="glass p-3 flex justify-between items-center text-xs border-l-4 ${r.estado === 'DENTRO' ? 'border-green-500' : 'border-slate-500'}">
+        <div onclick="mostrarFicha('${r.__backendId}')" class="card p-4 flex justify-between items-center text-xs border-l-4 border-purple-500">
           <div>
-            <p class="font-bold text-purple-400">${r.acceso} - ${r.placa}</p>
-            <p class="text-sm font-bold">${r.nombre}</p>
-            <p class="opacity-50">${new Date(r.fecha).toLocaleTimeString()}</p>
+            <p class="font-black text-purple-600 uppercase text-[9px] tracking-widest">${r.acceso}</p>
+            <p class="text-sm font-extrabold text-slate-800">${r.nombre}</p>
+            <p class="text-slate-400 font-bold uppercase">${r.placa} • ${r.tipo}</p>
           </div>
-          <span class="bg-white/10 px-2 py-1 rounded text-[9px]">${r.estado}</span>
+          <span class="bg-green-100 text-green-700 px-2 py-1 rounded-lg font-black text-[9px]">DENTRO</span>
         </div>
       `).join('');
     }
@@ -176,17 +180,21 @@
       if(!r) return;
       tab('print');
       document.getElementById('ficha-v').innerHTML = `
-        <h2 class="text-xl font-black mb-4 text-white uppercase">Pase de Acceso</h2>
-        <div class="text-left text-sm space-y-2 mb-6 bg-slate-800/50 p-4 rounded-xl border border-white/5">
-          <p><span class="opacity-50">PUNTO:</span> ${r.acceso}</p>
-          <p><span class="opacity-50">NOMBRE:</span> ${r.nombre}</p>
-          <p><span class="opacity-50">TIPO:</span> ${r.tipo}</p>
-          <p><span class="opacity-50">DESTINO:</span> ${r.domicilio}</p>
-          <p><span class="opacity-50">VEHÍCULO:</span> ${r.vehiculo}</p>
-          <p><span class="opacity-50">PLACA:</span> ${r.placa}</p>
-          <p><span class="opacity-50">FECHA:</span> ${new Date(r.fecha).toLocaleString()}</p>
+        <div class="mb-6">
+            <h2 class="text-2xl font-black text-slate-900 tracking-tighter uppercase">Pase de Entrada</h2>
+            <p class="text-purple-600 font-black text-xs tracking-widest">VIA CUMBRES</p>
         </div>
-        ${r.foto ? `<img src="${r.foto}" class="w-full rounded-xl no-print border border-white/10 shadow-2xl">` : ''}
+        <div class="text-left text-sm space-y-4 mb-6 bg-slate-50 p-6 rounded-2xl border border-slate-100">
+          <div><p class="text-slate-400 font-bold text-[10px] uppercase">Persona:</p><p class="font-extrabold text-slate-800 text-base">${r.nombre}</p></div>
+          <div class="grid grid-cols-2 gap-4">
+            <div><p class="text-slate-400 font-bold text-[10px] uppercase">Tipo:</p><p class="font-bold">${r.tipo}</p></div>
+            <div><p class="text-slate-400 font-bold text-[10px] uppercase">Punto:</p><p class="font-bold">${r.acceso}</p></div>
+          </div>
+          <div><p class="text-slate-400 font-bold text-[10px] uppercase">Destino:</p><p class="font-bold">${r.domicilio}</p></div>
+          <div><p class="text-slate-400 font-bold text-[10px] uppercase">Vehículo:</p><p class="font-bold">${r.vehiculo} - [${r.placa}]</p></div>
+          <p class="text-[10px] text-slate-400 pt-2 border-t border-slate-200">${new Date(r.fecha).toLocaleString()}</p>
+        </div>
+        ${r.foto ? `<img src="${r.foto}" class="w-full rounded-2xl shadow-xl border-4 border-white mb-2">` : ''}
       `;
     }
   </script>
