@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Ingresos Via Cumbres</title>
   
-  <script src="/_sdk/data_sdk.js"></script>
-  <script src="/_sdk/element_sdk.js"></script>
+  <script src="./_sdk/data_sdk.js"></script>
+  <script src="./_sdk/element_sdk.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
   
   <style>
@@ -36,7 +36,7 @@
         <button onclick="location.reload()" style="color: #94a3b8; font-size: 12px; background:none; border:none; text-decoration:underline;">Cambiar</button>
     </div>
 
-    <form onsubmit="registrar(event)">
+    <form id="formularioIngreso" onsubmit="registrar(event)">
         <select id="tipo" class="input-box" required>
             <option value="">¿QUIÉN INGRESA?</option>
             <option value="Propietario">PROPIETARIO</option>
@@ -57,29 +57,36 @@
   </div>
 
   <script>
-    // 1. INICIALIZACIÓN INMEDIATA
-    let punto = "";
+    // CORRECCIÓN CRÍTICA DE INICIALIZACIÓN
+    let puntoSeleccionado = "";
     
-    // Forzamos la carga del SDK al abrir la página
-    window.addEventListener('load', () => {
-        if(window.dataSdk) {
-            window.dataSdk.init().catch(e => console.error("Error SDK:", e));
+    // Función de inicialización forzada
+    async function inicializarSDK() {
+        if (window.dataSdk) {
+            try {
+                await window.dataSdk.init();
+                console.log("Base de datos conectada");
+            } catch (e) {
+                console.error("Error al conectar DB:", e);
+            }
         }
-    });
+    }
 
     function seleccionar(lugar) {
-        punto = lugar;
+        puntoSeleccionado = lugar;
         document.getElementById('pantalla-inicio').classList.remove('visible');
         document.getElementById('pantalla-form').classList.add('visible');
         document.getElementById('tag-lugar').innerText = "📍 " + lugar;
+        // Inicializamos justo al seleccionar el punto
+        inicializarSDK();
     }
 
     async function registrar(e) {
         e.preventDefault();
         
-        // Verificación de seguridad
-        if (!window.dataSdk || !window.dataSdk.create) {
-            alert("Error: El sistema de base de datos no cargó. Refresca la página.");
+        // Verificación de seguridad reforzada
+        if (typeof window.dataSdk === 'undefined' || !window.dataSdk.create) {
+            alert("El motor de base de datos no ha cargado. Por favor, revisa tu conexión y refresca la página.");
             return;
         }
 
@@ -92,15 +99,15 @@
             let b64 = "";
 
             if (fotoFile) {
-                b64 = await new Promise((res) => {
-                    const r = new FileReader();
-                    r.onload = () => res(r.result);
-                    r.readAsDataURL(fotoFile);
+                b64 = await new Promise((resolve) => {
+                    const reader = new FileReader();
+                    reader.onload = () => resolve(reader.result);
+                    reader.readAsDataURL(fotoFile);
                 });
             }
 
-            const r = {
-                acceso: punto,
+            const registro = {
+                acceso: puntoSeleccionado,
                 tipo: document.getElementById('tipo').value,
                 nombre: document.getElementById('nombre').value,
                 domicilio: document.getElementById('domicilio').value,
@@ -109,15 +116,16 @@
                 fecha: new Date().toISOString()
             };
 
-            const res = await window.dataSdk.create(r);
-            if (res.isOk) {
-                alert("✅ REGISTRO EXITOSO");
+            const respuesta = await window.dataSdk.create(registro);
+            if (respuesta.isOk) {
+                alert("✅ REGISTRO GUARDADO EN VIA CUMBRES");
+                document.getElementById('formularioIngreso').reset();
                 location.reload();
             } else {
-                alert("❌ Error de servidor: " + res.error);
+                alert("Hubo un problema al guardar: " + respuesta.error);
             }
         } catch (err) {
-            alert("Error técnico: " + err.message);
+            alert("Error de sistema: " + err.message);
         } finally {
             btn.innerText = "CONFIRMAR REGISTRO";
             btn.disabled = false;
@@ -126,4 +134,3 @@
   </script>
  </body>
 </html>
-
