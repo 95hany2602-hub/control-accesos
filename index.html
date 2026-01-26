@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Ingresos Via Cumbres</title>
   
-  <script src="/_sdk/data_sdk.js"></script>
-  <script src="/_sdk/element_sdk.js"></script>
+  <script src="./_sdk/data_sdk.js"></script>
+  <script src="./_sdk/element_sdk.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
   
   <style>
@@ -36,7 +36,7 @@
         <button onclick="location.reload()" style="color: #94a3b8; font-size: 12px; background:none; border:none; text-decoration:underline;">Cambiar</button>
     </div>
 
-    <form onsubmit="registrar(event)">
+    <form id="formularioIngreso" onsubmit="registrar(event)">
         <select id="tipo" class="input-box" required>
             <option value="">¿QUIÉN INGRESA?</option>
             <option value="Propietario">PROPIETARIO</option>
@@ -55,3 +55,82 @@
         <button type="submit" id="btn-save" class="btn-verde">CONFIRMAR REGISTRO</button>
     </form>
   </div>
+
+  <script>
+    // CORRECCIÓN CRÍTICA DE INICIALIZACIÓN
+    let puntoSeleccionado = "";
+    
+    // Función de inicialización forzada
+    async function inicializarSDK() {
+        if (window.dataSdk) {
+            try {
+                await window.dataSdk.init();
+                console.log("Base de datos conectada");
+            } catch (e) {
+                console.error("Error al conectar DB:", e);
+            }
+        }
+    }
+
+    function seleccionar(lugar) {
+        puntoSeleccionado = lugar;
+        document.getElementById('pantalla-inicio').classList.remove('visible');
+        document.getElementById('pantalla-form').classList.add('visible');
+        document.getElementById('tag-lugar').innerText = "📍 " + lugar;
+        // Inicializamos justo al seleccionar el punto
+        inicializarSDK();
+    }
+
+    async function registrar(e) {
+        e.preventDefault();
+        
+        // Verificación de seguridad reforzada
+        if (typeof window.dataSdk === 'undefined' || !window.dataSdk.create) {
+            alert("El motor de base de datos no ha cargado. Por favor, revisa tu conexión y refresca la página.");
+            return;
+        }
+
+        const btn = document.getElementById('btn-save');
+        btn.innerText = "GUARDANDO...";
+        btn.disabled = true;
+
+        try {
+            const fotoFile = document.getElementById('foto').files[0];
+            let b64 = "";
+
+            if (fotoFile) {
+                b64 = await new Promise((resolve) => {
+                    const reader = new FileReader();
+                    reader.onload = () => resolve(reader.result);
+                    reader.readAsDataURL(fotoFile);
+                });
+            }
+
+            const registro = {
+                acceso: puntoSeleccionado,
+                tipo: document.getElementById('tipo').value,
+                nombre: document.getElementById('nombre').value,
+                domicilio: document.getElementById('domicilio').value,
+                placa: document.getElementById('placa').value.toUpperCase() || "N/A",
+                foto: b64,
+                fecha: new Date().toISOString()
+            };
+
+            const respuesta = await window.dataSdk.create(registro);
+            if (respuesta.isOk) {
+                alert("✅ REGISTRO GUARDADO EN VIA CUMBRES");
+                document.getElementById('formularioIngreso').reset();
+                location.reload();
+            } else {
+                alert("Hubo un problema al guardar: " + respuesta.error);
+            }
+        } catch (err) {
+            alert("Error de sistema: " + err.message);
+        } finally {
+            btn.innerText = "CONFIRMAR REGISTRO";
+            btn.disabled = false;
+        }
+    }
+  </script>
+ </body>
+</html>
