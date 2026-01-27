@@ -1,1 +1,3 @@
-window.elementSdk = {init: function() { console.log("SDK de elementos listo"); }};
+window.elementSdk = {
+    init: function() { console.log("SDK de elementos listo"); }
+};
