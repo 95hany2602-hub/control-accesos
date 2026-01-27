@@ -3,94 +3,181 @@
  <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Ingresos Via Cumbres</title>
+  <title>Via Cumbres Pro - Seguridad</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .glass { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
+    .seccion { display: none; }
+    .activo { display: block; }
+    .input-v { @apply w-full p-3 bg-slate-50 border-2 border-slate-100 rounded-xl mb-3 outline-none focus:border-purple-500 font-semibold; }
+  </style>
  </head>
- <body class="bg-slate-50 font-sans">
+ <body class="bg-slate-100 font-sans min-h-screen">
 
-  <div id="pantalla-inicio" class="p-8 text-center min-h-screen flex flex-col justify-center">
-    <div class="mb-10">
-        <h1 class="text-4xl font-black text-slate-900 mb-1 italic">VIA CUMBRES</h1>
-        <h2 class="text-purple-600 font-bold tracking-[0.2em] text-xs uppercase">Control de Accesos</h2>
+  <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 flex justify-around p-3 z-50 glass">
+    <button onclick="navegar('inicio')" class="text-center group">
+        <div class="text-xl group-focus:text-purple-600">🏠</div>
+        <span class="text-[10px] font-bold text-slate-400 group-focus:text-purple-600">INICIO</span>
+    </button>
+    <button onclick="navegar('buscar')" class="text-center group">
+        <div class="text-xl">🔍</div>
+        <span class="text-[10px] font-bold text-slate-400">BUSCAR</span>
+    </button>
+    <button onclick="navegar('bitacora')" class="text-center group">
+        <div class="text-xl">📋</div>
+        <span class="text-[10px] font-bold text-slate-400">BITÁCORA</span>
+    </button>
+  </nav>
+
+  <div id="sec-inicio" class="seccion activo p-8 text-center min-h-screen flex flex-col justify-center pb-24">
+    <div class="mb-8">
+        <h1 class="text-3xl font-black text-slate-900 italic">VIA CUMBRES</h1>
+        <p class="text-purple-600 font-bold text-xs tracking-widest uppercase">Sistema de Seguridad</p>
     </div>
-    
-    <div class="space-y-4 max-w-xs mx-auto w-full">
-        <button onclick="irARegistro('ACCESO 1')" class="w-full bg-purple-600 text-white p-6 rounded-2xl font-black shadow-xl active:scale-95 transition-all text-lg">ACCESO 1</button>
-        <button onclick="irARegistro('ACCESO 2')" class="w-full bg-purple-600 text-white p-6 rounded-2xl font-black shadow-xl active:scale-95 transition-all text-lg">ACCESO 2</button>
-        <button onclick="irARegistro('PEATONAL')" class="w-full bg-slate-800 text-white p-6 rounded-2xl font-black shadow-xl active:scale-95 transition-all text-lg">PEATONAL</button>
+    <div class="space-y-3">
+        <button onclick="abrirForm('ACCESO 1')" class="w-full bg-purple-600 text-white p-5 rounded-2xl font-black shadow-lg">ACCESO 1</button>
+        <button onclick="abrirForm('ACCESO 2')" class="w-full bg-purple-600 text-white p-5 rounded-2xl font-black shadow-lg">ACCESO 2</button>
+        <button onclick="abrirForm('PEATONAL')" class="w-full bg-slate-800 text-white p-5 rounded-2xl font-black shadow-lg">PEATONAL</button>
     </div>
   </div>
 
-  <div id="pantalla-form" class="hidden p-6 max-w-lg mx-auto min-h-screen flex flex-col">
-    <div class="flex justify-between items-center mb-8">
-        <span id="badge-lugar" class="bg-purple-100 text-purple-700 px-4 py-2 rounded-xl font-black text-xs border-2 border-purple-200"></span>
-        <button onclick="location.reload()" class="text-xs font-bold text-slate-400 uppercase tracking-widest">Cancelar</button>
+  <div id="sec-form" class="seccion p-6 pb-24">
+    <div class="flex justify-between items-center mb-4">
+        <h3 id="form-lugar" class="font-black text-purple-700 bg-purple-100 px-3 py-1 rounded-lg text-sm"></h3>
+        <button onclick="navegar('inicio')" class="text-xs font-bold text-slate-400">CANCELAR</button>
     </div>
 
-    <div class="bg-white p-8 rounded-[2rem] shadow-2xl border border-slate-100 flex-grow">
-        <label class="block text-[10px] font-black text-slate-400 uppercase mb-2 ml-1">Tipo de Ingreso</label>
-        <select id="tipo" class="w-full p-4 mb-6 bg-slate-50 border-2 border-slate-100 rounded-2xl font-bold text-slate-700 focus:border-purple-500 outline-none transition-all">
-            <option value="VISITA">VISITA</option>
-            <option value="PROVEEDOR">PROVEEDOR</option>
-            <option value="RESIDENTE">RESIDENTE</option>
-            <option value="SERVICIOS">SERVICIOS</option>
-        </select>
+    <div class="bg-white p-5 rounded-[2rem] shadow-xl border border-white">
+        <label class="text-[10px] font-black text-slate-400 uppercase ml-1">Visitante</label>
+        <select id="tipo" class="input-v"><option>VISITA</option><option>PROVEEDOR</option><option>RESIDENTE</option></select>
+        <input type="text" id="nombre" placeholder="Nombre completo" class="input-v">
+        <input type="text" id="domicilio" placeholder="Casa / Lote" class="input-v">
 
-        <label class="block text-[10px] font-black text-slate-400 uppercase mb-2 ml-1">Nombre Completo</label>
-        <input type="text" id="nombre" placeholder="Escriba aquí..." class="w-full p-4 mb-6 bg-slate-50 border-2 border-slate-100 rounded-2xl font-bold outline-none focus:border-purple-500 transition-all">
+        <label class="text-[10px] font-black text-slate-400 uppercase ml-1">Vehículo (Si aplica)</label>
+        <div class="grid grid-cols-2 gap-2">
+            <input type="text" id="placa" placeholder="Placas" class="input-v uppercase">
+            <input type="text" id="marca" placeholder="Marca" class="input-v">
+            <input type="text" id="modelo" placeholder="Modelo" class="input-v">
+            <input type="text" id="color" placeholder="Color" class="input-v">
+        </div>
 
-        <label class="block text-[10px] font-black text-slate-400 uppercase mb-2 ml-1">Casa / Lote</label>
-        <input type="text" id="domicilio" placeholder="Ej: Mza 5 Lote 2" class="w-full p-4 mb-10 bg-slate-50 border-2 border-slate-100 rounded-2xl font-bold outline-none focus:border-purple-500 transition-all">
-        
-        <button onclick="guardar()" id="btn-confirmar" class="w-full bg-emerald-500 text-white py-6 rounded-2xl font-black text-xl shadow-lg shadow-emerald-100 hover:bg-emerald-600 active:scale-95 transition-all">
-            CONFIRMAR ENTRADA
-        </button>
+        <div class="bg-slate-50 p-4 rounded-xl border-2 border-dashed border-slate-200 mb-6 text-center">
+            <input type="file" id="foto" accept="image/*" capture="environment" class="hidden">
+            <button onclick="document.getElementById('foto').click()" class="text-xs font-black text-purple-600">📸 ADJUNTAR FOTO EVIDENCIA</button>
+        </div>
+
+        <button onclick="guardarRegistro()" id="btn-save" class="w-full bg-emerald-500 text-white py-5 rounded-2xl font-black text-lg shadow-emerald-200 shadow-lg">CONFIRMAR REGISTRO</button>
     </div>
+  </div>
+
+  <div id="sec-buscar" class="seccion p-6 pb-24">
+    <h2 class="text-2xl font-black mb-4">Buscador Rápido</h2>
+    <input type="text" id="input-busqueda" onkeyup="filtrarRegistros()" placeholder="Buscar por Nombre o Placa..." class="input-v mb-4 border-purple-200 shadow-sm">
+    <div id="lista-busqueda" class="space-y-3">
+        </div>
+  </div>
+
+  <div id="sec-bitacora" class="seccion p-6 pb-24">
+    <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-black">Registros de Hoy</h2>
+        <button onclick="generarReporte()" class="bg-slate-800 text-white px-4 py-2 rounded-xl font-bold text-xs italic">PDF/REPORTE</button>
+    </div>
+    <div id="lista-bitacora" class="space-y-3">
+        </div>
   </div>
 
   <script>
-    let sitio = "";
+    let puntoActual = "";
+    let db = JSON.parse(localStorage.getItem('viaCumbres_DB')) || [];
 
-    // Función para cambiar de pantalla
-    function irARegistro(lugar) {
-        sitio = lugar;
-        document.getElementById('pantalla-inicio').classList.add('hidden');
-        document.getElementById('pantalla-form').classList.remove('hidden');
-        document.getElementById('badge-lugar').innerText = "📍 " + lugar;
+    function navegar(id) {
+        document.querySelectorAll('.seccion').forEach(s => s.classList.remove('activo'));
+        document.getElementById('sec-' + id).classList.add('activo');
+        if(id === 'bitacora' || id === 'buscar') actualizarListas();
     }
 
-    // Función de guardado directo (Todo en uno)
-    function guardar() {
-        const nombre = document.getElementById('nombre').value;
-        const domicilio = document.getElementById('domicilio').value;
-        const tipo = document.getElementById('tipo').value;
-        const btn = document.getElementById('btn-confirmar');
+    function abrirForm(lugar) {
+        puntoActual = lugar;
+        document.getElementById('form-lugar').innerText = "📍 " + lugar;
+        navegar('form');
+    }
 
-        if(!nombre || !domicilio) {
-            alert("⚠️ Por favor llena todos los campos");
-            return;
-        }
-
-        btn.innerText = "PROCESANDO...";
-        btn.disabled = true;
-
-        // Simulamos el envío (Aquí es donde el sistema "crea" el dato)
-        const registro = {
-            punto: sitio,
-            tipo: tipo,
-            nombre: nombre,
-            domicilio: domicilio,
+    function guardarRegistro() {
+        const r = {
+            id: Date.now(),
+            punto: puntoActual,
+            tipo: document.getElementById('tipo').value,
+            nombre: document.getElementById('nombre').value,
+            domicilio: document.getElementById('domicilio').value,
+            placa: document.getElementById('placa').value.toUpperCase() || "S/P",
+            marca: document.getElementById('marca').value,
+            modelo: document.getElementById('modelo').value,
+            color: document.getElementById('color').value,
+            fecha: new Date().toLocaleDateString(),
             hora: new Date().toLocaleTimeString(),
-            fecha: new Date().toLocaleDateString()
+            status: 'ADENTRO'
         };
 
-        console.log("Registro local:", registro);
+        if(!r.nombre || !r.domicilio) return alert("Llena nombre y domicilio");
 
-        // Como ya no dependemos del SDK externo, forzamos el éxito
-        setTimeout(() => {
-            alert("✅ REGISTRO EXITOSO\n\nBienvenido a Via Cumbres");
-            location.reload();
-        }, 1000);
+        db.unshift(r);
+        localStorage.setItem('viaCumbres_DB', JSON.stringify(db));
+        alert("✅ REGISTRO GUARDADO");
+        document.querySelectorAll('input').forEach(i => i.value = "");
+        navegar('bitacora');
+    }
+
+    function actualizarListas() {
+        const bita = document.getElementById('lista-bitacora');
+        const search = document.getElementById('lista-busqueda');
+        bita.innerHTML = "";
+        search.innerHTML = "";
+
+        db.forEach(r => {
+            const card = `
+                <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 relative">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-[10px] font-black text-purple-600">${r.tipo} | ${r.punto}</p>
+                            <h4 class="font-black text-slate-800 text-lg">${r.nombre}</h4>
+                            <p class="text-xs font-bold text-slate-500 italic">Casa: ${r.domicilio}</p>
+                            <p class="text-[10px] text-slate-400 mt-1">${r.marca} ${r.color} - [${r.placa}]</p>
+                        </div>
+                        <span class="text-[9px] font-bold text-slate-400">${r.hora}</span>
+                    </div>
+                    ${r.status === 'ADENTRO' ? 
+                        `<button onclick="marcarSalida(${r.id})" class="mt-3 w-full bg-slate-100 text-slate-600 py-2 rounded-lg text-[10px] font-black hover:bg-red-50 hover:text-red-600 transition-all italic">MARCAR SALIDA</button>` : 
+                        `<p class="mt-3 text-center text-[9px] font-black text-emerald-500 uppercase tracking-widest">Ya salió</p>`
+                    }
+                </div>`;
+            bita.innerHTML += card;
+            search.innerHTML += card;
+        });
+    }
+
+    function marcarSalida(id) {
+        db = db.map(r => r.id === id ? {...r, status: 'FUERA'} : r);
+        localStorage.setItem('viaCumbres_DB', JSON.stringify(db));
+        actualizarListas();
+    }
+
+    function filtrarRegistros() {
+        const query = document.getElementById('input-busqueda').value.toLowerCase();
+        document.querySelectorAll('#lista-busqueda > div').forEach(card => {
+            card.innerText.toLowerCase().includes(query) ? card.style.display = "block" : card.style.display = "none";
+        });
+    }
+
+    function generarReporte() {
+        let texto = "REPORTE VIA CUMBRES\n" + new Date().toLocaleDateString() + "\n\n";
+        db.forEach(r => {
+            texto += `[${r.hora}] ${r.nombre} - ${r.domicilio} - Placa: ${r.placa} - (${r.status})\n`;
+        });
+        const blob = new Blob([texto], {type: "text/plain"});
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = "Bitacora_ViaCumbres.txt";
+        link.click();
     }
   </script>
  </body>
