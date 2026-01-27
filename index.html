@@ -3,22 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Sistema Via Cumbres Pro</title>
+    <title>Via Cumbres - Sistema Integral</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .seccion { display: none; }
         .activo { display: block; }
         .glass { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); }
         .input-v { @apply w-full p-4 bg-gray-50 border-2 border-gray-100 rounded-2xl mb-3 outline-none focus:border-indigo-500 font-semibold; }
+        #bloqueo { background: #0f172a; z-index: 1000; position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; }
     </style>
 </head>
 <body class="bg-gray-100 min-h-screen font-sans">
 
-    <div id="bloqueo" class="fixed inset-0 bg-slate-900 z-[100] flex items-center justify-center p-6">
-        <div class="bg-white p-8 rounded-[2.5rem] shadow-2xl w-full max-w-sm text-center">
+    <div id="bloqueo" class="hidden">
+        <div class="bg-white p-8 rounded-[2.5rem] shadow-2xl w-80 text-center">
             <div class="text-5xl mb-4">🛡️</div>
-            <h2 class="text-2xl font-black text-gray-800 mb-2">SEGURIDAD</h2>
-            <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-6">Ingrese Clave de Acceso</p>
+            <h2 class="text-2xl font-black text-gray-800 mb-2 uppercase">Seguridad</h2>
             <input type="password" id="pass" placeholder="CLAVE" class="w-full p-4 bg-gray-100 rounded-2xl text-center text-xl font-black mb-4 uppercase border-2 border-transparent focus:border-indigo-500 outline-none">
             <button onclick="verificar()" class="w-full bg-indigo-600 text-white p-4 rounded-2xl font-black shadow-lg active:scale-95 transition-all">ENTRAR</button>
         </div>
@@ -33,77 +33,67 @@
 
         <div id="sec-inicio" class="seccion activo p-8 pt-20 text-center">
             <h1 id="display-nombre" class="text-3xl font-black text-gray-900 italic uppercase mb-2">---</h1>
-            <p class="text-indigo-600 font-bold text-xs tracking-widest mb-10 uppercase">Control de Accesos</p>
-            
+            <p class="text-indigo-600 font-bold text-xs tracking-widest mb-10 uppercase italic">Control de Accesos</p>
             <div class="space-y-4">
-                <button onclick="abrirForm('ACCESO 1')" class="w-full bg-indigo-600 text-white p-6 rounded-3xl font-black shadow-xl text-lg">ACCESO 1</button>
-                <button onclick="abrirForm('ACCESO 2')" class="w-full bg-indigo-600 text-white p-6 rounded-3xl font-black shadow-xl text-lg">ACCESO 2</button>
-                <button onclick="abrirForm('PEATONAL')" class="w-full bg-gray-800 text-white p-6 rounded-3xl font-black shadow-xl text-lg">PEATONAL</button>
+                <button onclick="abrirForm('ACCESO 1')" class="w-full bg-indigo-600 text-white p-6 rounded-3xl font-black shadow-xl">ACCESO 1</button>
+                <button onclick="abrirForm('ACCESO 2')" class="w-full bg-indigo-600 text-white p-6 rounded-3xl font-black shadow-xl">ACCESO 2</button>
+                <button onclick="abrirForm('PEATONAL')" class="w-full bg-gray-800 text-white p-6 rounded-3xl font-black shadow-xl">PEATONAL</button>
             </div>
-            
-            <button onclick="salir()" class="mt-12 text-xs font-bold text-gray-400 underline uppercase">Cerrar Sesión</button>
+            <button onclick="salir()" class="mt-12 text-xs font-bold text-gray-400 underline uppercase italic">Cerrar Sesión</button>
         </div>
 
         <div id="sec-form" class="seccion p-6 pb-28">
             <div class="flex justify-between items-center mb-6">
-                <span id="tag-lugar" class="bg-indigo-100 text-indigo-700 px-4 py-1 rounded-full font-black text-xs uppercase"></span>
-                <button onclick="navegar('inicio')" class="text-xs font-bold text-gray-400 uppercase italic">← Volver</button>
+                <span id="tag-lugar" class="bg-indigo-100 text-indigo-700 px-4 py-1 rounded-full font-black text-xs uppercase italic"></span>
+                <button onclick="navegar('inicio')" class="text-xs font-bold text-gray-400 uppercase font-black">← Volver</button>
             </div>
-
             <div class="bg-white p-6 rounded-[2.5rem] shadow-xl">
-                <label class="text-[10px] font-black text-gray-400 ml-2 uppercase">Tipo de Visitante</label>
+                <label class="text-[10px] font-black text-gray-300 ml-2 uppercase">Tipo</label>
                 <select id="tipo" class="input-v">
-                    <option>VISITA</option>
-                    <option>PROVEEDOR</option>
-                    <option>RESIDENTE</option>
-                    <option>DOMÉSTICO</option>
-                    <option>PROPIETARIO</option>
-                    <option>TRABAJADOR</option>
+                    <option>VISITA</option><option>PROVEEDOR</option><option>RESIDENTE</option>
+                    <option>DOMÉSTICO</option><option>PROPIETARIO</option><option>TRABAJADOR</option>
                 </select>
-
                 <input type="text" id="nombre" placeholder="Nombre completo" class="input-v">
                 <input type="text" id="domicilio" placeholder="Casa / Lote" class="input-v">
-
                 <div class="grid grid-cols-2 gap-3">
                     <input type="text" id="placa" placeholder="Placas" class="input-v uppercase">
                     <input type="text" id="marca" placeholder="Marca" class="input-v">
                     <input type="text" id="modelo" placeholder="Modelo" class="input-v">
                     <input type="text" id="color" placeholder="Color" class="input-v">
                 </div>
-
                 <div class="mt-2 mb-6 p-4 border-2 border-dashed border-gray-200 rounded-2xl text-center">
                     <input type="file" id="foto-input" accept="image/*" capture="environment" class="hidden" onchange="procesarFoto(this)">
                     <button onclick="document.getElementById('foto-input').click()" id="btn-foto" class="font-black text-indigo-600 text-sm uppercase italic">📸 Tomar Evidencia</button>
-                    <img id="preview" class="hidden mt-4 w-full rounded-xl shadow-md border-2 border-white">
+                    <img id="preview" class="hidden mt-4 w-full rounded-xl border-2 border-white shadow-md">
                 </div>
-
-                <button onclick="guardar()" class="w-full bg-emerald-500 text-white p-5 rounded-2xl font-black text-xl shadow-lg shadow-emerald-100">CONFIRMAR</button>
+                <button onclick="guardar()" id="btn-guardar" class="w-full bg-emerald-500 text-white p-5 rounded-2xl font-black text-xl shadow-lg">CONFIRMAR REGISTRO</button>
             </div>
         </div>
 
         <div id="sec-bitacora" class="seccion p-6 pb-28">
-            <h2 class="text-2xl font-black text-gray-800 mb-6 uppercase italic">Registros de Hoy</h2>
+            <h2 class="text-2xl font-black text-gray-800 mb-6 uppercase italic">Registros Hoy</h2>
             <div id="lista-bitacora" class="space-y-4"></div>
         </div>
 
         <div id="sec-buscar" class="seccion p-6 pb-28">
             <h2 class="text-2xl font-black text-gray-800 mb-4 uppercase italic">Buscador</h2>
-            <input type="text" onkeyup="filtrar(this.value)" placeholder="Buscar por nombre o placa..." class="input-v border-indigo-200">
-            <div id="lista-busqueda" class="space-y-4 mt-4"></div>
+            <input type="text" onkeyup="filtrar(this.value)" placeholder="Nombre o Placa..." class="input-v border-indigo-200">
+            <div id="lista-busqueda" class="space-y-4"></div>
         </div>
     </div>
 
     <script>
+        // --- CONFIGURACIÓN ---
         const CLAVES = { "CUMBRES": "VIA CUMBRES", "ADMIN": "ADMINISTRACIÓN" };
-        let db = JSON.parse(localStorage.getItem('db_seguridad')) || [];
-        let fotoData = "";
-        let lugarActual = "";
-        let fraccNombre = "";
+        const URL_EXCEL = "TU_URL_AQUI"; // <--- PEGA TU LINK DE GOOGLE AQUÍ
 
-        // AUTO LOGIN
+        let db = JSON.parse(localStorage.getItem('db_seguridad')) || [];
+        let fotoData = "", lugarActual = "", fraccNombre = "";
+
         window.onload = () => {
             const sesion = localStorage.getItem('sesion_activa');
             if(sesion) entrar(sesion);
+            else document.getElementById('bloqueo').classList.remove('hidden');
         };
 
         function verificar() {
@@ -111,22 +101,17 @@
             if(CLAVES[clave]) {
                 localStorage.setItem('sesion_activa', CLAVES[clave]);
                 entrar(CLAVES[clave]);
-            } else {
-                alert("Clave Incorrecta");
-            }
+            } else alert("Clave Incorrecta");
         }
 
-        function entrar(nombre) {
-            fraccNombre = nombre;
-            document.getElementById('display-nombre').innerText = nombre;
+        function entrar(n) {
+            fraccNombre = n;
+            document.getElementById('display-nombre').innerText = n;
             document.getElementById('bloqueo').classList.add('hidden');
             document.getElementById('app').classList.remove('hidden');
         }
 
-        function salir() {
-            localStorage.removeItem('sesion_activa');
-            location.reload();
-        }
+        function salir() { localStorage.removeItem('sesion_activa'); location.reload(); }
 
         function navegar(id) {
             document.querySelectorAll('.seccion').forEach(s => s.classList.remove('activo'));
@@ -134,9 +119,9 @@
             if(id === 'bitacora' || id === 'buscar') renderizarListas();
         }
 
-        function abrirForm(lugar) {
-            lugarActual = lugar;
-            document.getElementById('tag-lugar').innerText = "📍 " + lugar;
+        function abrirForm(l) {
+            lugarActual = l;
+            document.getElementById('tag-lugar').innerText = "📍 " + l;
             navegar('form');
         }
 
@@ -147,15 +132,17 @@
                     fotoData = e.target.result;
                     document.getElementById('preview').src = fotoData;
                     document.getElementById('preview').classList.remove('hidden');
-                    document.getElementById('btn-foto').innerText = "✅ FOTO CAPTURADA";
+                    document.getElementById('btn-foto').innerText = "✅ FOTO LISTA";
                 };
                 reader.readAsDataURL(input.files[0]);
             }
         }
 
         function guardar() {
+            const btn = document.getElementById('btn-guardar');
             const reg = {
                 id: Date.now(),
+                fracc: fraccNombre,
                 nombre: document.getElementById('nombre').value,
                 domicilio: document.getElementById('domicilio').value,
                 tipo: document.getElementById('tipo').value,
@@ -164,17 +151,47 @@
                 modelo: document.getElementById('modelo').value || "-",
                 color: document.getElementById('color').value || "-",
                 foto: fotoData,
-                hora: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
+                horaEntrada: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
+                horaSalida: null,
                 fecha: new Date().toLocaleDateString(),
-                lugar: lugarActual
+                lugar: lugarActual,
+                estado: 'ADENTRO'
             };
 
-            if(!reg.nombre || !reg.domicilio) return alert("Llena los datos básicos");
+            if(!reg.nombre || !reg.domicilio) return alert("⚠️ Faltan datos");
+            
+            btn.disabled = true;
+            btn.innerText = "ENVIANDO...";
 
+            // 1. Guardar Local
             db.unshift(reg);
             localStorage.setItem('db_seguridad', JSON.stringify(db));
-            alert("¡REGISTRO EXITOSO!");
-            location.reload();
+
+            // 2. Enviar a Excel
+            if(URL_EXCEL !== "TU_URL_AQUI") {
+                fetch(URL_EXCEL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    body: JSON.stringify(reg)
+                }).catch(e => console.log(e));
+            }
+
+            setTimeout(() => {
+                alert("✅ REGISTRO GUARDADO EN EXCEL Y CELULAR");
+                location.reload();
+            }, 1000);
+        }
+
+        function darSalida(id) {
+            const idx = db.findIndex(r => r.id === id);
+            if(idx !== -1) {
+                db[idx].estado = 'SALIDA';
+                db[idx].horaSalida = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                localStorage.setItem('db_seguridad', JSON.stringify(db));
+                
+                // Opcional: Enviar también la salida al Excel (requiere ajuste en script)
+                renderizarListas();
+            }
         }
 
         function renderizarListas() {
@@ -182,14 +199,21 @@
             containers.forEach(c => {
                 c.innerHTML = "";
                 db.forEach(r => {
+                    const estCol = r.estado === 'ADENTRO' ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700';
                     c.innerHTML += `
-                        <div class="bg-white p-4 rounded-2xl shadow-sm border flex justify-between items-center">
-                            <div>
-                                <p class="text-[10px] font-black text-indigo-600 uppercase">${r.tipo} | ${r.lugar}</p>
-                                <h4 class="font-black text-gray-800">${r.nombre}</h4>
-                                <p class="text-[10px] text-gray-400 font-bold">${r.domicilio} • ${r.hora}</p>
+                        <div class="bg-white p-4 rounded-2xl shadow-sm border mb-4">
+                            <div class="flex justify-between items-start mb-3">
+                                <div>
+                                    <p class="text-[9px] font-black text-indigo-600 uppercase">${r.tipo} | ${r.lugar}</p>
+                                    <h4 class="font-black text-gray-800">${r.nombre}</h4>
+                                    <p class="text-[10px] text-gray-400 font-bold">${r.domicilio} • IN: ${r.horaEntrada} ${r.horaSalida ? '• OUT: '+r.horaSalida : ''}</p>
+                                </div>
+                                <span class="${estCol} px-3 py-1 rounded-lg text-[9px] font-black">${r.estado}</span>
                             </div>
-                            <button onclick='generarPDF(${JSON.stringify(r)})' class="bg-indigo-50 text-indigo-600 px-4 py-2 rounded-xl text-[10px] font-black uppercase">Ficha PDF</button>
+                            <div class="flex gap-2">
+                                <button onclick='generarPDF(${JSON.stringify(r)})' class="flex-1 bg-gray-100 text-gray-600 py-3 rounded-xl text-[10px] font-black uppercase italic">Ficha PDF</button>
+                                ${r.estado === 'ADENTRO' ? `<button onclick="darSalida(${r.id})" class="flex-1 bg-red-500 text-white py-3 rounded-xl text-[10px] font-black uppercase italic">Salida</button>` : ''}
+                            </div>
                         </div>`;
                 });
             });
@@ -198,50 +222,36 @@
         function generarPDF(r) {
             const v = window.open('', '_blank');
             v.document.write(`
-                <html>
-                <head>
-                    <style>
-                        body { font-family: sans-serif; padding: 30px; background: #f1f5f9; }
-                        .card { background: white; max-width: 700px; margin: auto; padding: 40px; border-radius: 30px; border-top: 15px solid #4f46e5; }
-                        .header { text-align: center; border-bottom: 2px solid #f1f5f9; padding-bottom: 20px; margin-bottom: 25px; }
-                        .flex { display: flex; gap: 30px; align-items: flex-start; }
-                        .info { flex: 1; }
-                        .foto { flex: 1; text-align: right; }
-                        .foto img { width: 100%; border-radius: 20px; border: 4px solid #f1f5f9; }
-                        .box { background: #f8fafc; padding: 15px; border-radius: 12px; margin-bottom: 10px; border-left: 5px solid #6366f1; }
-                        .lab { font-size: 10px; color: #94a3b8; font-weight: 800; text-transform: uppercase; }
-                        .val { font-size: 16px; font-weight: 900; color: #1e293b; }
-                        .footer { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; background: #1e293b; color: white; padding: 20px; border-radius: 20px; margin-top: 25px; text-align: center; }
-                    </style>
-                </head>
-                <body>
-                    <div class="card">
-                        <div class="header">
-                            <h1 style="margin:0; font-size:28px;">${fraccNombre}</h1>
-                            <p style="margin:0; color:#6366f1; font-weight:bold; font-size:12px;">REGISTRO OFICIAL DE ACCESO</p>
-                        </div>
-                        <div class="flex">
-                            <div class="info">
-                                <div class="box"><span class="lab">Visitante</span><br><span class="val">${r.nombre}</span></div>
-                                <div class="box"><span class="lab">Destino / Tipo</span><br><span class="val">${r.domicilio} (${r.tipo})</span></div>
-                                <div class="box"><span class="lab">Fecha y Hora</span><br><span class="val">${r.fecha} - ${r.hora}</span></div>
-                            </div>
-                            <div class="foto">
-                                <span class="lab">Evidencia Fotográfica</span><br>
-                                <img src="${r.foto || 'https://via.placeholder.com/300x200?text=SIN+FOTO'}">
-                            </div>
-                        </div>
-                        <div class="footer">
-                            <div><small style="font-size:8px;opacity:0.6">PLACAS</small><br><b>${r.placa}</b></div>
-                            <div><small style="font-size:8px;opacity:0.6">MARCA</small><br><b>${r.marca}</b></div>
-                            <div><small style="font-size:8px;opacity:0.6">MODELO</small><br><b>${r.modelo}</b></div>
-                            <div><small style="font-size:8px;opacity:0.6">COLOR</small><br><b>${r.color}</b></div>
-                        </div>
-                        <button onclick="window.print()" style="width:100%; margin-top:30px; padding:20px; background:#10b981; color:white; border:none; border-radius:20px; font-weight:900; cursor:pointer; font-size:16px;">IMPRIMIR FICHA</button>
+                <html><head><style>
+                    body { font-family: sans-serif; padding: 30px; background: #f1f5f9; }
+                    .card { background: white; max-width: 700px; margin: auto; padding: 40px; border-radius: 30px; border-top: 15px solid #4f46e5; }
+                    .flex { display: flex; gap: 30px; }
+                    .foto img { width: 100%; border-radius: 20px; border: 4px solid #f1f5f9; }
+                    .box { background: #f8fafc; padding: 15px; border-radius: 12px; margin-bottom: 10px; border-left: 5px solid #6366f1; }
+                    .footer { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; background: #1e293b; color: white; padding: 20px; border-radius: 20px; text-align: center; }
+                </style></head><body>
+                <div class="card">
+                    <div style="text-align:center; margin-bottom:25px;">
+                        <h1 style="margin:0;">${fraccNombre}</h1>
+                        <p style="color:#6366f1; font-weight:bold; letter-spacing:2px;">REPORTE DE ACCESO</p>
                     </div>
-                </body>
-                </html>
-            `);
+                    <div class="flex">
+                        <div style="flex:1">
+                            <div class="box"><small style="font-size:9px; color:#94a3b8; font-weight:bold; text-transform:uppercase;">Visitante</small><br><b>${r.nombre}</b></div>
+                            <div class="box"><small style="font-size:9px; color:#94a3b8; font-weight:bold; text-transform:uppercase;">Entrada</small><br><b>${r.fecha} - ${r.horaEntrada}</b></div>
+                            ${r.horaSalida ? `<div class="box" style="border-color:#ef4444"><small style="font-size:9px; color:#94a3b8; font-weight:bold; text-transform:uppercase;">Salida</small><br><b>${r.horaSalida}</b></div>` : ''}
+                            <div class="box"><small style="font-size:9px; color:#94a3b8; font-weight:bold; text-transform:uppercase;">Ubicación</small><br><b>${r.domicilio} (${r.lugar})</b></div>
+                        </div>
+                        <div style="flex:1" class="foto"><img src="${r.foto || 'https://via.placeholder.com/300x200?text=SIN+FOTO'}"></div>
+                    </div>
+                    <div class="footer">
+                        <div><small style="font-size:8px;opacity:0.6">PLACAS</small><br><b>${r.placa}</b></div>
+                        <div><small style="font-size:8px;opacity:0.6">MARCA</small><br><b>${r.marca}</b></div>
+                        <div><small style="font-size:8px;opacity:0.6">MODELO</small><br><b>${r.modelo}</b></div>
+                        <div><small style="font-size:8px;opacity:0.6">COLOR</small><br><b>${r.color}</b></div>
+                    </div>
+                    <button onclick="window.print()" style="width:100%; margin-top:25px; padding:20px; background:#10b981; color:white; border:none; border-radius:20px; font-weight:900; cursor:pointer;">IMPRIMIR REPORTE</button>
+                </div></body></html>`);
             v.document.close();
         }
 
