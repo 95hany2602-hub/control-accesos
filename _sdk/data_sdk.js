@@ -1,4 +1,3 @@
-​<!-- end list -->
 window.dataSdk = {
     init: async function() {
         console.log("SDK de datos inicializado");
