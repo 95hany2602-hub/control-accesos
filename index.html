@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Via Cumbres - Sistema Integral</title>
+    <title>Via Cumbres - Sistema de Control</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .seccion { display: none; }
@@ -20,7 +20,7 @@
             <div class="text-5xl mb-4">🛡️</div>
             <h2 class="text-2xl font-black text-gray-800 mb-2 uppercase">Seguridad</h2>
             <input type="password" id="pass" placeholder="CLAVE" class="w-full p-4 bg-gray-100 rounded-2xl text-center text-xl font-black mb-4 uppercase border-2 border-transparent focus:border-indigo-500 outline-none">
-            <button onclick="verificar()" class="w-full bg-indigo-600 text-white p-4 rounded-2xl font-black shadow-lg active:scale-95 transition-all">ENTRAR</button>
+            <button onclick="verificar()" class="w-full bg-indigo-600 text-white p-4 rounded-2xl font-black shadow-lg">ENTRAR</button>
         </div>
     </div>
 
@@ -48,7 +48,6 @@
                 <button onclick="navegar('inicio')" class="text-xs font-bold text-gray-400 uppercase font-black">← Volver</button>
             </div>
             <div class="bg-white p-6 rounded-[2.5rem] shadow-xl">
-                <label class="text-[10px] font-black text-gray-300 ml-2 uppercase">Tipo</label>
                 <select id="tipo" class="input-v">
                     <option>VISITA</option><option>PROVEEDOR</option><option>RESIDENTE</option>
                     <option>DOMÉSTICO</option><option>PROPIETARIO</option><option>TRABAJADOR</option>
@@ -85,23 +84,29 @@
     <script>
         // --- CONFIGURACIÓN ---
         const CLAVES = { "CUMBRES": "VIA CUMBRES", "ADMIN": "ADMINISTRACIÓN" };
-        const URL_EXCEL = "TU_URL_AQUI"; // <--- PEGA TU LINK DE GOOGLE AQUÍ
+        const URL_EXCEL = ""; // <--- Pega aquí tu URL cuando la tengas lista
 
         let db = JSON.parse(localStorage.getItem('db_seguridad')) || [];
         let fotoData = "", lugarActual = "", fraccNombre = "";
 
+        // AUTO LOGIN SEGURO
         window.onload = () => {
             const sesion = localStorage.getItem('sesion_activa');
-            if(sesion) entrar(sesion);
-            else document.getElementById('bloqueo').classList.remove('hidden');
+            if(sesion) {
+                entrar(sesion);
+            } else {
+                document.getElementById('bloqueo').classList.remove('hidden');
+            }
         };
 
         function verificar() {
-            const clave = document.getElementById('pass').value.trim().toUpperCase();
-            if(CLAVES[clave]) {
-                localStorage.setItem('sesion_activa', CLAVES[clave]);
-                entrar(CLAVES[clave]);
-            } else alert("Clave Incorrecta");
+            const passInput = document.getElementById('pass').value.trim().toUpperCase();
+            if(CLAVES[passInput]) {
+                localStorage.setItem('sesion_activa', CLAVES[passInput]);
+                entrar(CLAVES[passInput]);
+            } else {
+                alert("❌ Clave Incorrecta");
+            }
         }
 
         function entrar(n) {
@@ -111,7 +116,12 @@
             document.getElementById('app').classList.remove('hidden');
         }
 
-        function salir() { localStorage.removeItem('sesion_activa'); location.reload(); }
+        function salir() {
+            if(confirm("¿Cerrar sesión? Se volverá a pedir la clave.")) {
+                localStorage.removeItem('sesion_activa');
+                location.reload();
+            }
+        }
 
         function navegar(id) {
             document.querySelectorAll('.seccion').forEach(s => s.classList.remove('activo'));
@@ -143,13 +153,13 @@
             const reg = {
                 id: Date.now(),
                 fracc: fraccNombre,
-                nombre: document.getElementById('nombre').value,
-                domicilio: document.getElementById('domicilio').value,
+                nombre: document.getElementById('nombre').value.trim(),
+                domicilio: document.getElementById('domicilio').value.trim(),
                 tipo: document.getElementById('tipo').value,
-                placa: document.getElementById('placa').value.toUpperCase() || "S/P",
-                marca: document.getElementById('marca').value || "-",
-                modelo: document.getElementById('modelo').value || "-",
-                color: document.getElementById('color').value || "-",
+                placa: document.getElementById('placa').value.toUpperCase().trim() || "S/P",
+                marca: document.getElementById('marca').value.trim() || "-",
+                modelo: document.getElementById('modelo').value.trim() || "-",
+                color: document.getElementById('color').value.trim() || "-",
                 foto: fotoData,
                 horaEntrada: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
                 horaSalida: null,
@@ -158,28 +168,29 @@
                 estado: 'ADENTRO'
             };
 
-            if(!reg.nombre || !reg.domicilio) return alert("⚠️ Faltan datos");
+            if(!reg.nombre || !reg.domicilio) return alert("⚠️ Nombre y Domicilio son obligatorios");
             
             btn.disabled = true;
-            btn.innerText = "ENVIANDO...";
+            btn.innerText = "GUARDANDO...";
 
-            // 1. Guardar Local
+            // 1. Guardar Local (Falla menos)
             db.unshift(reg);
             localStorage.setItem('db_seguridad', JSON.stringify(db));
 
-            // 2. Enviar a Excel
-            if(URL_EXCEL !== "TU_URL_AQUI") {
+            // 2. Enviar a Excel (Solo si la URL existe)
+            if(URL_EXCEL && URL_EXCEL !== "" && URL_EXCEL !== "TU_URL_AQUI") {
                 fetch(URL_EXCEL, {
                     method: 'POST',
                     mode: 'no-cors',
                     body: JSON.stringify(reg)
-                }).catch(e => console.log(e));
+                }).catch(e => console.log("Error de Excel ignorado para no bloquear App"));
             }
 
+            // Finalizar proceso
             setTimeout(() => {
-                alert("✅ REGISTRO GUARDADO EN EXCEL Y CELULAR");
+                alert("✅ REGISTRO COMPLETADO");
                 location.reload();
-            }, 1000);
+            }, 800);
         }
 
         function darSalida(id) {
@@ -188,8 +199,6 @@
                 db[idx].estado = 'SALIDA';
                 db[idx].horaSalida = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
                 localStorage.setItem('db_seguridad', JSON.stringify(db));
-                
-                // Opcional: Enviar también la salida al Excel (requiere ajuste en script)
                 renderizarListas();
             }
         }
@@ -245,10 +254,10 @@
                         <div style="flex:1" class="foto"><img src="${r.foto || 'https://via.placeholder.com/300x200?text=SIN+FOTO'}"></div>
                     </div>
                     <div class="footer">
-                        <div><small style="font-size:8px;opacity:0.6">PLACAS</small><br><b>${r.placa}</b></div>
-                        <div><small style="font-size:8px;opacity:0.6">MARCA</small><br><b>${r.marca}</b></div>
-                        <div><small style="font-size:8px;opacity:0.6">MODELO</small><br><b>${r.modelo}</b></div>
-                        <div><small style="font-size:8px;opacity:0.6">COLOR</small><br><b>${r.color}</b></div>
+                        <div><small>PLACAS</small><br><b>${r.placa}</b></div>
+                        <div><small>MARCA</small><br><b>${r.marca}</b></div>
+                        <div><small>MODELO</small><br><b>${r.modelo}</b></div>
+                        <div><small>COLOR</small><br><b>${r.color}</b></div>
                     </div>
                     <button onclick="window.print()" style="width:100%; margin-top:25px; padding:20px; background:#10b981; color:white; border:none; border-radius:20px; font-weight:900; cursor:pointer;">IMPRIMIR REPORTE</button>
                 </div></body></html>`);
