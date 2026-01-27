@@ -3,7 +3,7 @@
  <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Sistema de Seguridad Pro - Acceso Inteligente</title>
+  <title>Sistema de Seguridad - Acceso Automático</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     .glass { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
@@ -15,11 +15,11 @@
  </head>
  <body class="bg-slate-100 font-sans min-h-screen">
 
-  <div id="bloqueo-pantalla">
+  <div id="bloqueo-pantalla" class="hidden">
     <div class="bg-white p-8 rounded-[2.5rem] shadow-2xl w-80 text-center">
         <div class="text-4xl mb-4">🛡️</div>
         <h2 class="font-black text-xl mb-1 text-slate-800 uppercase">Seguridad</h2>
-        <p class="text-[10px] text-slate-400 font-bold mb-6 uppercase tracking-widest">Ingrese Clave de Fraccionamiento</p>
+        <p class="text-[10px] text-slate-400 font-bold mb-6 uppercase tracking-widest">Ingrese Clave de Acceso</p>
         <input type="password" id="input-pass" placeholder="Clave" class="w-full p-4 bg-slate-100 rounded-2xl text-center text-xl font-black outline-none border-2 border-transparent focus:border-purple-500 mb-4 uppercase">
         <button onclick="verificarAcceso()" class="w-full bg-indigo-600 text-white py-4 rounded-2xl font-black active:scale-95 transition-all shadow-lg shadow-indigo-100">INGRESAR</button>
     </div>
@@ -35,14 +35,14 @@
       <div id="sec-inicio" class="seccion activo p-8 text-center min-h-screen flex flex-col justify-center pb-24">
         <div class="mb-10">
             <h1 id="txt-nombre-fracc" class="text-3xl font-black text-slate-900 italic uppercase">---</h1>
-            <p class="text-indigo-600 font-bold text-xs tracking-[0.3em] uppercase">Control de Accesos</p>
+            <p class="text-indigo-600 font-bold text-xs tracking-[0.3em] uppercase italic">Control de Accesos</p>
         </div>
         <div class="space-y-3">
             <button onclick="abrirForm('ACCESO 1')" class="w-full bg-indigo-600 text-white p-5 rounded-2xl font-black shadow-xl">ACCESO 1</button>
             <button onclick="abrirForm('ACCESO 2')" class="w-full bg-indigo-600 text-white p-5 rounded-2xl font-black shadow-xl">ACCESO 2</button>
             <button onclick="abrirForm('PEATONAL')" class="w-full bg-slate-800 text-white p-5 rounded-2xl font-black shadow-xl">PEATONAL</button>
         </div>
-        <button onclick="location.reload()" class="mt-10 text-[10px] font-bold text-slate-400 uppercase underline">Cerrar Sesión</button>
+        <button onclick="cerrarSesion()" class="mt-10 text-[10px] font-bold text-slate-400 uppercase underline">Cerrar Sesión / Cambiar Clave</button>
       </div>
 
       <div id="sec-form" class="seccion p-6 pb-24">
@@ -90,11 +90,10 @@
   </main>
 
   <script>
-    // --- MAPA DE CLAVES Y NOMBRES ---
+    // --- MAPA DE CLAVES ---
     const CLAVES_FRACC = {
         "CUMBRES123": "VIA CUMBRES",
-        "ALAMOS456": "LOS ÁLAMOS",
-        "ADMIN": "FRACCIONAMIENTO DEMO"
+        "ADMIN": "ACCESO MAESTRO"
     };
 
     let nombreActual = "";
@@ -102,19 +101,43 @@
     let fotoBase64 = "";
     let puntoActual = "";
 
+    // FUNCIÓN DE AUTO-LOGIN (Se ejecuta al cargar la página)
+    window.onload = function() {
+        const sesionGuardada = localStorage.getItem('sesion_activa_nombre');
+        if (sesionGuardada) {
+            entrarDirecto(sesionGuardada);
+        } else {
+            document.getElementById('bloqueo-pantalla').classList.remove('hidden');
+        }
+    };
+
     function verificarAcceso() {
-        const pass = document.getElementById('input-pass').value.toUpperCase();
-        if(CLAVES_FRACC[pass]) {
-            nombreActual = CLAVES_FRACC[pass];
-            document.getElementById('txt-nombre-fracc').innerText = nombreActual;
-            document.getElementById('bloqueo-pantalla').classList.add('hidden');
-            document.getElementById('app-content').classList.remove('hidden');
-            document.getElementById('nav-principal').classList.remove('hidden');
+        const input = document.getElementById('input-pass').value.trim().toUpperCase();
+        if (CLAVES_FRACC[input]) {
+            nombreActual = CLAVES_FRACC[input];
+            localStorage.setItem('sesion_activa_nombre', nombreActual); // GUARDAR SESIÓN
+            entrarDirecto(nombreActual);
         } else {
             alert("❌ Clave no reconocida");
         }
     }
 
+    function entrarDirecto(nombre) {
+        nombreActual = nombre;
+        document.getElementById('txt-nombre-fracc').innerText = nombreActual;
+        document.getElementById('bloqueo-pantalla').classList.add('hidden');
+        document.getElementById('app-content').classList.remove('hidden');
+        document.getElementById('nav-principal').classList.remove('hidden');
+    }
+
+    function cerrarSesion() {
+        if(confirm("¿Cerrar sesión? Se pedirá la clave nuevamente.")) {
+            localStorage.removeItem('sesion_activa_nombre');
+            location.reload();
+        }
+    }
+
+    // --- EL RESTO DE LAS FUNCIONES SE MANTIENEN IGUAL ---
     function navegar(id) {
         document.querySelectorAll('.seccion').forEach(s => s.classList.remove('activo'));
         document.getElementById('sec-' + id).classList.add('activo');
@@ -157,20 +180,22 @@
             fecha: new Date().toLocaleDateString(),
             hora: new Date().toLocaleTimeString()
         };
-
         if(!r.nombre || !r.domicilio) return alert("⚠️ Datos incompletos");
-
         db.unshift(r);
         localStorage.setItem('viaCumbres_DB', JSON.stringify(db));
         alert("✅ REGISTRO EXITOSO");
-        location.reload();
+        navegar('inicio');
+        // Resetear formulario
+        document.querySelectorAll('input').forEach(i => i.value = "");
+        document.getElementById('img-preview').classList.add('hidden');
+        document.getElementById('btn-foto').innerText = "📸 Tomar Foto";
+        fotoBase64 = "";
     }
 
     function actualizarListas() {
         const bita = document.getElementById('lista-bitacora');
         const busca = document.getElementById('lista-busqueda');
         bita.innerHTML = busca.innerHTML = "";
-
         db.forEach(r => {
             const html = `
                 <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200">
@@ -190,50 +215,7 @@
 
     function generarFicha(r) {
         const v = window.open('', '_blank');
-        v.document.write(`
-            <html>
-            <head>
-                <style>
-                    body { font-family: sans-serif; padding: 40px; background: #f8fafc; color: #1e293b; }
-                    .card { background: white; max-width: 800px; margin: auto; padding: 35px; border-radius: 25px; border-top: 15px solid #4f46e5; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); }
-                    .header { text-align: center; border-bottom: 2px solid #f1f5f9; margin-bottom: 30px; padding-bottom: 20px; }
-                    .content { display: flex; gap: 30px; align-items: flex-start; }
-                    .data { flex: 1.2; }
-                    .photo { flex: 0.8; }
-                    .photo img { width: 100%; border-radius: 15px; border: 5px solid #f1f5f9; }
-                    .field { margin-bottom: 18px; background: #f8fafc; padding: 15px; border-radius: 12px; border-left: 5px solid #6366f1; }
-                    .label { font-size: 10px; color: #94a3b8; font-weight: 900; text-transform: uppercase; letter-spacing: 1.5px; }
-                    .val { font-size: 18px; font-weight: 800; }
-                    .footer-v { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; background: #1e293b; color: white; padding: 25px; border-radius: 20px; margin-top: 30px; text-align: center; }
-                </style>
-            </head>
-            <body>
-                <div class="card">
-                    <div class="header">
-                        <h1 style="margin:0; font-size: 32px; font-weight: 900;">${r.fracc}</h1>
-                        <p style="margin:5px 0 0; font-size:12px; font-weight: 800; color: #6366f1; letter-spacing: 3px;">REPORTE DE INGRESO</p>
-                    </div>
-                    <div class="content">
-                        <div class="data">
-                            <div class="field"><span class="label">Visitante</span><br><span class="val">${r.nombre}</span></div>
-                            <div class="field"><span class="label">Tipo / Destino</span><br><span class="val">${r.tipo} - ${r.domicilio}</span></div>
-                            <div class="field"><span class="label">Entrada</span><br><span class="val">${r.fecha} | ${r.hora}</span></div>
-                        </div>
-                        <div class="photo">
-                            <img src="${r.foto || 'https://via.placeholder.com/400x300?text=SIN+FOTO'}">
-                        </div>
-                    </div>
-                    <div class="footer-v">
-                        <div><small style="opacity:0.5; font-size:9px;">PLACAS</small><br><b>${r.placa}</b></div>
-                        <div><small style="opacity:0.5; font-size:9px;">MARCA</small><br><b>${r.marca}</b></div>
-                        <div><small style="opacity:0.5; font-size:9px;">MODELO</small><br><b>${r.modelo}</b></div>
-                        <div><small style="opacity:0.5; font-size:9px;">COLOR</small><br><b>${r.color}</b></div>
-                    </div>
-                    <button onclick="window.print()" style="width:100%; margin-top:30px; padding:20px; background:#10b981; color:white; border:none; border-radius:18px; font-weight:900; cursor:pointer; font-size:18px;">IMPRIMIR PDF</button>
-                </div>
-            </body>
-            </html>
-        `);
+        v.document.write(`<html><head><style>body { font-family: sans-serif; padding: 40px; background: #f8fafc; color: #1e293b; } .card { background: white; max-width: 800px; margin: auto; padding: 35px; border-radius: 25px; border-top: 15px solid #4f46e5; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); } .header { text-align: center; border-bottom: 2px solid #f1f5f9; margin-bottom: 30px; padding-bottom: 20px; } .content { display: flex; gap: 30px; align-items: flex-start; } .data { flex: 1.2; } .photo { flex: 0.8; } .photo img { width: 100%; border-radius: 15px; border: 5px solid #f1f5f9; } .field { margin-bottom: 18px; background: #f8fafc; padding: 15px; border-radius: 12px; border-left: 5px solid #6366f1; } .label { font-size: 10px; color: #94a3b8; font-weight: 900; text-transform: uppercase; letter-spacing: 1.5px; } .val { font-size: 18px; font-weight: 800; } .footer-v { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; background: #1e293b; color: white; padding: 25px; border-radius: 20px; margin-top: 30px; text-align: center; } </style></head><body> <div class="card"> <div class="header"> <h1 style="margin:0; font-size: 32px; font-weight: 900;">${r.fracc}</h1> <p style="margin:5px 0 0; font-size:12px; font-weight: 800; color: #6366f1; letter-spacing: 3px;">REPORTE DE INGRESO</p> </div> <div class="content"> <div class="data"> <div class="field"><span class="label">Visitante</span><br><span class="val">${r.nombre}</span></div> <div class="field"><span class="label">Tipo / Destino</span><br><span class="val">${r.tipo} - ${r.domicilio}</span></div> <div class="field"><span class="label">Entrada</span><br><span class="val">${r.fecha} | ${r.hora}</span></div> </div> <div class="photo"> <img src="${r.foto || 'https://via.placeholder.com/400x300?text=SIN+FOTO'}"> </div> </div> <div class="footer-v"> <div><small style="opacity:0.5; font-size:9px;">PLACAS</small><br><b>${r.placa}</b></div> <div><small style="opacity:0.5; font-size:9px;">MARCA</small><br><b>${r.marca}</b></div> <div><small style="opacity:0.5; font-size:9px;">MODELO</small><br><b>${r.modelo}</b></div> <div><small style="opacity:0.5; font-size:9px;">COLOR</small><br><b>${r.color}</b></div> </div> <button onclick="window.print()" style="width:100%; margin-top:30px; padding:20px; background:#10b981; color:white; border:none; border-radius:18px; font-weight:900; cursor:pointer; font-size:18px;">IMPRIMIR PDF</button> </div> </body></html>`);
         v.document.close();
     }
 
