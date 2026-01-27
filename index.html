@@ -1,230 +1,145 @@
 <!doctype html>
 <html lang="es">
- <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Sistema de Seguridad - Acceso Automático</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    .glass { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
-    .seccion { display: none; }
-    .activo { display: block; }
-    .input-v { @apply w-full p-3 bg-slate-50 border-2 border-slate-100 rounded-xl mb-3 outline-none focus:border-purple-500 font-semibold; }
-    #bloqueo-pantalla { background: #0f172a; z-index: 1000; position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; }
-  </style>
- </head>
- <body class="bg-slate-100 font-sans min-h-screen">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Sistema de Seguridad - Acceso Automático</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .glass { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
+        .seccion { display: none; }
+        .activo { display: block; }
+        .input-v { @apply w-full p-3 bg-slate-50 border-2 border-slate-100 rounded-xl mb-3 outline-none focus:border-purple-500 font-semibold; }
+        /* El bloqueo ahora es visible por defecto para evitar parpadeos */
+        #bloqueo-pantalla { background: #0f172a; z-index: 1000; position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; }
+    </style>
+</head>
+<body class="bg-slate-100 font-sans min-h-screen">
 
-  <div id="bloqueo-pantalla" class="hidden">
-    <div class="bg-white p-8 rounded-[2.5rem] shadow-2xl w-80 text-center">
-        <div class="text-4xl mb-4">🛡️</div>
-        <h2 class="font-black text-xl mb-1 text-slate-800 uppercase">Seguridad</h2>
-        <p class="text-[10px] text-slate-400 font-bold mb-6 uppercase tracking-widest">Ingrese Clave de Acceso</p>
-        <input type="password" id="input-pass" placeholder="Clave" class="w-full p-4 bg-slate-100 rounded-2xl text-center text-xl font-black outline-none border-2 border-transparent focus:border-purple-500 mb-4 uppercase">
-        <button onclick="verificarAcceso()" class="w-full bg-indigo-600 text-white py-4 rounded-2xl font-black active:scale-95 transition-all shadow-lg shadow-indigo-100">INGRESAR</button>
+    <!-- PANTALLA DE BLOQUEO -->
+    <div id="bloqueo-pantalla">
+        <div class="bg-white p-8 rounded-[2.5rem] shadow-2xl w-80 text-center">
+            <div class="text-4xl mb-4">🛡️</div>
+            <h2 class="font-black text-xl mb-1 text-slate-800 uppercase">Seguridad</h2>
+            <p class="text-[10px] text-slate-400 font-bold mb-6 uppercase tracking-widest">Ingrese Clave de Acceso</p>
+            
+            <input type="password" id="input-pass" placeholder="Clave" 
+                class="w-full p-4 bg-slate-100 rounded-2xl text-center text-xl font-black outline-none border-2 border-transparent focus:border-purple-500 mb-4 uppercase">
+            
+            <button onclick="verificarAcceso()" 
+                class="w-full bg-indigo-600 text-white py-4 rounded-2xl font-black active:scale-95 transition-all shadow-lg shadow-indigo-100">
+                INGRESAR
+            </button>
+        </div>
     </div>
-  </div>
 
-  <nav id="nav-principal" class="hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 flex justify-around p-3 z-50 glass">
-    <button onclick="navegar('inicio')" class="text-center group"><div class="text-xl">🏠</div><span class="text-[10px] font-bold text-slate-400 uppercase">Inicio</span></button>
-    <button onclick="navegar('buscar')" class="text-center group"><div class="text-xl">🔍</div><span class="text-[10px] font-bold text-slate-400 uppercase">Buscar</span></button>
-    <button onclick="navegar('bitacora')" class="text-center group"><div class="text-xl">📋</div><span class="text-[10px] font-bold text-slate-400 uppercase">Bitácora</span></button>
-  </nav>
+    <!-- NAVEGACIÓN -->
+    <nav id="nav-principal" class="hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 flex justify-around p-3 z-50 glass">
+        <button onclick="navegar('inicio')" class="text-center group"><div class="text-xl">🏠</div><span class="text-[10px] font-bold text-slate-400 uppercase">Inicio</span></button>
+        <button onclick="navegar('buscar')" class="text-center group"><div class="text-xl">🔍</div><span class="text-[10px] font-bold text-slate-400 uppercase">Buscar</span></button>
+        <button onclick="navegar('bitacora')" class="text-center group"><div class="text-xl">📋</div><span class="text-[10px] font-bold text-slate-400 uppercase">Bitácora</span></button>
+    </nav>
 
-  <main id="app-content" class="hidden">
-      <div id="sec-inicio" class="seccion activo p-8 text-center min-h-screen flex flex-col justify-center pb-24">
-        <div class="mb-10">
-            <h1 id="txt-nombre-fracc" class="text-3xl font-black text-slate-900 italic uppercase">---</h1>
-            <p class="text-indigo-600 font-bold text-xs tracking-[0.3em] uppercase italic">Control de Accesos</p>
-        </div>
-        <div class="space-y-3">
-            <button onclick="abrirForm('ACCESO 1')" class="w-full bg-indigo-600 text-white p-5 rounded-2xl font-black shadow-xl">ACCESO 1</button>
-            <button onclick="abrirForm('ACCESO 2')" class="w-full bg-indigo-600 text-white p-5 rounded-2xl font-black shadow-xl">ACCESO 2</button>
-            <button onclick="abrirForm('PEATONAL')" class="w-full bg-slate-800 text-white p-5 rounded-2xl font-black shadow-xl">PEATONAL</button>
-        </div>
-        <button onclick="cerrarSesion()" class="mt-10 text-[10px] font-bold text-slate-400 uppercase underline">Cerrar Sesión / Cambiar Clave</button>
-      </div>
-
-      <div id="sec-form" class="seccion p-6 pb-24">
-        <div class="flex justify-between items-center mb-4">
-            <h3 id="form-lugar" class="font-black text-indigo-700 bg-indigo-50 px-3 py-1 rounded-lg text-xs"></h3>
-            <button onclick="navegar('inicio')" class="text-[10px] font-black text-slate-400 uppercase">Volver</button>
-        </div>
-        <div class="bg-white p-5 rounded-[2rem] shadow-xl border border-white">
-            <label class="text-[9px] font-black text-slate-400 ml-1 uppercase">Tipo de Ingreso</label>
-            <select id="tipo" class="input-v">
-                <option>VISITA</option>
-                <option>PROVEEDOR</option>
-                <option>RESIDENTE</option>
-                <option>DOMÉSTICO</option>
-                <option>PROPIETARIO</option>
-                <option>TRABAJADOR</option>
-            </select>
-            <input type="text" id="nombre" placeholder="Nombre completo" class="input-v">
-            <input type="text" id="domicilio" placeholder="Casa / Lote" class="input-v">
-            <div class="grid grid-cols-2 gap-2">
-                <input type="text" id="placa" placeholder="Placas" class="input-v uppercase">
-                <input type="text" id="marca" placeholder="Marca" class="input-v">
-                <input type="text" id="modelo" placeholder="Modelo" class="input-v">
-                <input type="text" id="color" placeholder="Color" class="input-v">
+    <!-- CONTENIDO PRINCIPAL -->
+    <main id="app-content" class="hidden">
+        <!-- SECCIÓN INICIO -->
+        <div id="sec-inicio" class="seccion activo p-8 text-center min-h-screen flex flex-col justify-center pb-24">
+            <div class="mb-10">
+                <h1 id="txt-nombre-fracc" class="text-3xl font-black text-slate-900 italic uppercase">---</h1>
+                <p class="text-indigo-600 font-bold text-xs tracking-[0.3em] uppercase italic">Control de Accesos</p>
             </div>
-            <div class="bg-slate-50 p-4 rounded-xl border-2 border-dashed border-slate-200 mb-6 text-center">
-                <input type="file" id="foto" accept="image/*" capture="environment" class="hidden" onchange="previewFoto(this)">
-                <button onclick="document.getElementById('foto').click()" id="btn-foto" class="text-xs font-black text-indigo-600 uppercase">📸 Tomar Foto</button>
-                <img id="img-preview" class="hidden mt-2 w-full rounded-lg border">
+            <div class="space-y-3">
+                <button onclick="abrirForm('ACCESO 1')" class="w-full bg-indigo-600 text-white p-5 rounded-2xl font-black shadow-xl italic">ACCESO 1</button>
+                <button onclick="abrirForm('ACCESO 2')" class="w-full bg-indigo-600 text-white p-5 rounded-2xl font-black shadow-xl italic">ACCESO 2</button>
+                <button onclick="abrirForm('PEATONAL')" class="w-full bg-slate-800 text-white p-5 rounded-2xl font-black shadow-xl italic">PEATONAL</button>
             </div>
-            <button onclick="guardarRegistro()" id="btn-save" class="w-full bg-emerald-500 text-white py-5 rounded-2xl font-black text-lg shadow-lg">CONFIRMAR REGISTRO</button>
+            <!-- BOTÓN CERRAR SESIÓN -->
+            <button onclick="cerrarSesion()" class="mt-10 text-[10px] font-bold text-slate-400 uppercase underline tracking-tighter">
+                Cerrar Sesión / Cambiar Clave
+            </button>
         </div>
-      </div>
 
-      <div id="sec-buscar" class="seccion p-6 pb-24">
-        <h2 class="text-2xl font-black mb-4 uppercase">Buscador</h2>
-        <input type="text" id="input-busqueda" onkeyup="filtrarRegistros()" placeholder="Nombre o Placa..." class="input-v border-indigo-200">
-        <div id="lista-busqueda" class="space-y-3"></div>
-      </div>
+        <!-- SECCIÓN FORMULARIO (Simplificada para el ejemplo) -->
+        <div id="sec-form" class="seccion p-6 pb-24">
+            <div class="flex justify-between items-center mb-4">
+                <h3 id="form-lugar" class="font-black text-indigo-700 bg-indigo-50 px-3 py-1 rounded-lg text-xs italic"></h3>
+                <button onclick="navegar('inicio')" class="text-[10px] font-black text-slate-400 uppercase">Volver</button>
+            </div>
+            <div class="bg-white p-5 rounded-[2rem] shadow-xl border border-white italic">
+                <p class="text-center text-slate-500 font-bold py-10">Formulario de registro listo...</p>
+            </div>
+        </div>
+    </main>
 
-      <div id="sec-bitacora" class="seccion p-6 pb-24">
-        <h2 class="text-2xl font-black mb-6 uppercase">Bitácora</h2>
-        <div id="lista-bitacora" class="space-y-3"></div>
-      </div>
-  </main>
-
-  <script>
-    // --- MAPA DE CLAVES ---
-    const CLAVES_FRACC = {
-        "CUMBRES123": "VIA CUMBRES",
-        "ADMIN": "ACCESO MAESTRO"
-    };
-
-    let nombreActual = "";
-    let db = JSON.parse(localStorage.getItem('viaCumbres_DB')) || [];
-    let fotoBase64 = "";
-    let puntoActual = "";
-
-    // FUNCIÓN DE AUTO-LOGIN (Se ejecuta al cargar la página)
-    window.onload = function() {
-        const sesionGuardada = localStorage.getItem('sesion_activa_nombre');
-        if (sesionGuardada) {
-            entrarDirecto(sesionGuardada);
-        } else {
-            document.getElementById('bloqueo-pantalla').classList.remove('hidden');
-        }
-    };
-
-    function verificarAcceso() {
-        const input = document.getElementById('input-pass').value.trim().toUpperCase();
-        if (CLAVES_FRACC[input]) {
-            nombreActual = CLAVES_FRACC[input];
-            localStorage.setItem('sesion_activa_nombre', nombreActual); // GUARDAR SESIÓN
-            entrarDirecto(nombreActual);
-        } else {
-            alert("❌ Clave no reconocida");
-        }
-    }
-
-    function entrarDirecto(nombre) {
-        nombreActual = nombre;
-        document.getElementById('txt-nombre-fracc').innerText = nombreActual;
-        document.getElementById('bloqueo-pantalla').classList.add('hidden');
-        document.getElementById('app-content').classList.remove('hidden');
-        document.getElementById('nav-principal').classList.remove('hidden');
-    }
-
-    function cerrarSesion() {
-        if(confirm("¿Cerrar sesión? Se pedirá la clave nuevamente.")) {
-            localStorage.removeItem('sesion_activa_nombre');
-            location.reload();
-        }
-    }
-
-    // --- EL RESTO DE LAS FUNCIONES SE MANTIENEN IGUAL ---
-    function navegar(id) {
-        document.querySelectorAll('.seccion').forEach(s => s.classList.remove('activo'));
-        document.getElementById('sec-' + id).classList.add('activo');
-        if(id === 'bitacora' || id === 'buscar') actualizarListas();
-    }
-
-    function abrirForm(lugar) {
-        puntoActual = lugar;
-        document.getElementById('form-lugar').innerText = "📍 " + lugar;
-        navegar('form');
-    }
-
-    function previewFoto(input) {
-        if (input.files && input.files[0]) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                fotoBase64 = e.target.result;
-                const img = document.getElementById('img-preview');
-                img.src = fotoBase64;
-                img.classList.remove('hidden');
-                document.getElementById('btn-foto').innerText = "✅ FOTO LISTA";
-            };
-            reader.readAsDataURL(input.files[0]);
-        }
-    }
-
-    function guardarRegistro() {
-        const r = {
-            id: Date.now(),
-            fracc: nombreActual,
-            punto: puntoActual,
-            tipo: document.getElementById('tipo').value,
-            nombre: document.getElementById('nombre').value,
-            domicilio: document.getElementById('domicilio').value,
-            placa: document.getElementById('placa').value.toUpperCase() || "S/P",
-            marca: document.getElementById('marca').value || "-",
-            modelo: document.getElementById('modelo').value || "-",
-            color: document.getElementById('color').value || "-",
-            foto: fotoBase64,
-            fecha: new Date().toLocaleDateString(),
-            hora: new Date().toLocaleTimeString()
+    <script>
+        // --- CONFIGURACIÓN Y MAPA DE CLAVES ---
+        const CLAVES_FRACC = {
+            "CUMBRES123": "VIA CUMBRES",
+            "ADMIN": "ACCESO MAESTRO",
+            "ALAMOS456": "LOS ÁLAMOS"
         };
-        if(!r.nombre || !r.domicilio) return alert("⚠️ Datos incompletos");
-        db.unshift(r);
-        localStorage.setItem('viaCumbres_DB', JSON.stringify(db));
-        alert("✅ REGISTRO EXITOSO");
-        navegar('inicio');
-        // Resetear formulario
-        document.querySelectorAll('input').forEach(i => i.value = "");
-        document.getElementById('img-preview').classList.add('hidden');
-        document.getElementById('btn-foto').innerText = "📸 Tomar Foto";
-        fotoBase64 = "";
-    }
 
-    function actualizarListas() {
-        const bita = document.getElementById('lista-bitacora');
-        const busca = document.getElementById('lista-busqueda');
-        bita.innerHTML = busca.innerHTML = "";
-        db.forEach(r => {
-            const html = `
-                <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200">
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <p class="text-[9px] font-black text-indigo-600 uppercase">${r.tipo} | ${r.punto}</p>
-                            <h4 class="font-black text-slate-800">${r.nombre}</h4>
-                            <p class="text-xs text-slate-500 italic">${r.domicilio}</p>
-                        </div>
-                        <button onclick='generarFicha(${JSON.stringify(r)})' class="bg-slate-100 px-3 py-2 rounded-xl text-[9px] font-black">FICHA PDF</button>
-                    </div>
-                </div>`;
-            bita.innerHTML += html;
-            busca.innerHTML += html;
+        let nombreActual = "";
+
+        // 1. AUTO-LOGIN AL CARGAR
+        window.onload = function() {
+            const sesionGuardada = localStorage.getItem('sesion_activa_nombre');
+            if (sesionGuardada) {
+                entrarDirecto(sesionGuardada);
+            } else {
+                // Si no hay sesión, nos aseguramos que el bloqueo sea visible
+                document.getElementById('bloqueo-pantalla').classList.remove('hidden');
+            }
+        };
+
+        // 2. VERIFICACIÓN DE CLAVE
+        function verificarAcceso() {
+            const input = document.getElementById('input-pass').value.trim().toUpperCase();
+            
+            if (CLAVES_FRACC[input]) {
+                const nombre = CLAVES_FRACC[input];
+                localStorage.setItem('sesion_activa_nombre', nombre); // Guardamos en memoria
+                entrarDirecto(nombre);
+            } else {
+                alert("❌ Clave no reconocida");
+                document.getElementById('input-pass').value = "";
+            }
+        }
+
+        // 3. MOSTRAR INTERFAZ
+        function entrarDirecto(nombre) {
+            nombreActual = nombre;
+            document.getElementById('txt-nombre-fracc').innerText = nombreActual;
+            
+            // Cambios de visibilidad
+            document.getElementById('bloqueo-pantalla').classList.add('hidden');
+            document.getElementById('app-content').classList.remove('hidden');
+            document.getElementById('nav-principal').classList.remove('hidden');
+        }
+
+        // 4. CERRAR SESIÓN
+        function cerrarSesion() {
+            if(confirm("¿Deseas cerrar la sesión actual?")) {
+                localStorage.removeItem('sesion_activa_nombre');
+                location.reload(); // Reinicia la app al estado bloqueado
+            }
+        }
+
+        // 5. NAVEGACIÓN ENTRE SECCIONES
+        function navegar(id) {
+            document.querySelectorAll('.seccion').forEach(s => s.classList.remove('activo'));
+            document.getElementById('sec-' + id).classList.add('activo');
+        }
+
+        function abrirForm(lugar) {
+            document.getElementById('form-lugar').innerText = lugar;
+            navegar('form');
+        }
+
+        // Permitir entrar con la tecla "Enter"
+        document.getElementById('input-pass').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') verificarAcceso();
         });
-    }
-
-    function generarFicha(r) {
-        const v = window.open('', '_blank');
-        v.document.write(`<html><head><style>body { font-family: sans-serif; padding: 40px; background: #f8fafc; color: #1e293b; } .card { background: white; max-width: 800px; margin: auto; padding: 35px; border-radius: 25px; border-top: 15px solid #4f46e5; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); } .header { text-align: center; border-bottom: 2px solid #f1f5f9; margin-bottom: 30px; padding-bottom: 20px; } .content { display: flex; gap: 30px; align-items: flex-start; } .data { flex: 1.2; } .photo { flex: 0.8; } .photo img { width: 100%; border-radius: 15px; border: 5px solid #f1f5f9; } .field { margin-bottom: 18px; background: #f8fafc; padding: 15px; border-radius: 12px; border-left: 5px solid #6366f1; } .label { font-size: 10px; color: #94a3b8; font-weight: 900; text-transform: uppercase; letter-spacing: 1.5px; } .val { font-size: 18px; font-weight: 800; } .footer-v { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; background: #1e293b; color: white; padding: 25px; border-radius: 20px; margin-top: 30px; text-align: center; } </style></head><body> <div class="card"> <div class="header"> <h1 style="margin:0; font-size: 32px; font-weight: 900;">${r.fracc}</h1> <p style="margin:5px 0 0; font-size:12px; font-weight: 800; color: #6366f1; letter-spacing: 3px;">REPORTE DE INGRESO</p> </div> <div class="content"> <div class="data"> <div class="field"><span class="label">Visitante</span><br><span class="val">${r.nombre}</span></div> <div class="field"><span class="label">Tipo / Destino</span><br><span class="val">${r.tipo} - ${r.domicilio}</span></div> <div class="field"><span class="label">Entrada</span><br><span class="val">${r.fecha} | ${r.hora}</span></div> </div> <div class="photo"> <img src="${r.foto || 'https://via.placeholder.com/400x300?text=SIN+FOTO'}"> </div> </div> <div class="footer-v"> <div><small style="opacity:0.5; font-size:9px;">PLACAS</small><br><b>${r.placa}</b></div> <div><small style="opacity:0.5; font-size:9px;">MARCA</small><br><b>${r.marca}</b></div> <div><small style="opacity:0.5; font-size:9px;">MODELO</small><br><b>${r.modelo}</b></div> <div><small style="opacity:0.5; font-size:9px;">COLOR</small><br><b>${r.color}</b></div> </div> <button onclick="window.print()" style="width:100%; margin-top:30px; padding:20px; background:#10b981; color:white; border:none; border-radius:18px; font-weight:900; cursor:pointer; font-size:18px;">IMPRIMIR PDF</button> </div> </body></html>`);
-        v.document.close();
-    }
-
-    function filtrarRegistros() {
-        const q = document.getElementById('input-busqueda').value.toLowerCase();
-        document.querySelectorAll('#lista-busqueda > div').forEach(i => {
-            i.innerText.toLowerCase().includes(q) ? i.style.display="block" : i.style.display="none";
-        });
-    }
-  </script>
- </body>
+    </script>
+</body>
 </html>
