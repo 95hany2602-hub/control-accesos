@@ -3,291 +3,298 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Via Cumbres | Security Master</title>
+    <title>Via Cumbres | Terminal de Seguridad Inteligente</title>
+    
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com"></script>
+    <link href="https://fonts.googleapis.com" rel="stylesheet">
+    
+    <script>
+        tailwind.config = { darkMode: 'class' }
+    </script>
+    
     <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; @apply bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors duration-300; }
         .seccion { display: none; }
-        .activo { display: block; animation: fadeIn 0.3s ease-out; }
+        .activo { display: block; animation: fadeIn 0.4s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .glass-nav { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(12px); border-top: 1px solid rgba(226, 232, 240, 0.8); }
-        .input-elegant { @apply w-full p-4 bg-white border border-slate-200 rounded-2xl mb-4 outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all font-medium text-slate-700 shadow-sm; }
-        .btn-primary { @apply w-full bg-slate-900 text-white p-5 rounded-3xl font-bold text-lg shadow-xl active:scale-[0.98] transition-all disabled:opacity-50; }
-        .card-registro { @apply bg-white p-5 rounded-[2.5rem] border border-slate-100 shadow-sm mb-4; }
-        #bloqueo { background: #0f172a; z-index: 1000; position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; }
+        .input-elegant { @apply w-full p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl mb-4 outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all font-semibold shadow-sm; }
+        .card-registro { @apply bg-white dark:bg-slate-900 p-6 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-sm mb-4; }
+        .btn-foto { @apply flex flex-col items-center justify-center p-4 border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-2xl bg-white dark:bg-slate-800 text-[10px] font-bold uppercase text-slate-500 hover:border-indigo-500 transition-colors; }
     </style>
 </head>
-<body class="text-slate-900">
+<body class="dark">
 
-    <div id="bloqueo" class="hidden">
-        <div class="w-full max-w-sm text-center p-8">
-            <div class="inline-block p-4 bg-indigo-500/10 rounded-3xl mb-6"><span class="text-5xl">🛡️</span></div>
-            <h2 class="text-3xl font-extrabold text-white mb-2 tracking-tight italic">VIA CUMBRES</h2>
-            <p class="text-slate-400 text-xs font-bold mb-10 uppercase tracking-[0.3em]">Security Control</p>
-            <div class="bg-white/5 p-2 rounded-[2.5rem] backdrop-blur-md border border-white/10">
-                <input type="password" id="pass" placeholder="CLAVE" class="w-full p-5 bg-transparent border-none text-center text-2xl text-white font-black tracking-widest outline-none">
-                <button onclick="verificar()" class="w-full bg-white text-slate-950 p-5 rounded-[2rem] font-black text-lg">ENTRAR</button>
-            </div>
+    <!-- BLOQUEO -->
+    <div id="bloqueo" class="fixed inset-0 bg-slate-950 z-[100] flex items-center justify-center p-8">
+        <div class="w-full max-w-sm text-center">
+            <h2 class="text-4xl font-black text-white italic mb-10 tracking-tighter uppercase">VIA CUMBRES</h2>
+            <input type="password" id="pass" placeholder="PIN ACCESO" class="w-full p-6 bg-white/5 border border-white/10 rounded-3xl text-center text-3xl text-white font-black tracking-[0.3em] outline-none mb-6">
+            <button onclick="verificar()" class="w-full bg-white text-slate-950 p-6 rounded-[2rem] font-black text-xl active:scale-95 transition-all shadow-2xl">INGRESAR</button>
         </div>
     </div>
 
     <div id="app" class="hidden">
-        <nav class="fixed bottom-0 left-0 right-0 h-20 glass-nav flex justify-around items-center z-50 px-6">
-            <button onclick="navegar('inicio')" class="text-center"><div class="text-2xl">🏠</div><span class="text-[10px] font-extrabold text-slate-400 uppercase">Inicio</span></button>
-            <button onclick="navegar('buscar')" class="text-center"><div class="text-2xl">🔍</div><span class="text-[10px] font-extrabold text-slate-400 uppercase">Buscar</span></button>
-            <button onclick="navegar('bitacora')" class="text-center"><div class="text-2xl">📋</div><span class="text-[10px] font-extrabold text-slate-400 uppercase">Hoy</span></button>
+        <!-- NAVEGACIÓN -->
+        <nav class="fixed bottom-0 left-0 right-0 h-20 bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl border-t border-slate-200 dark:border-slate-800 flex justify-around items-center px-6 z-50">
+            <button onclick="navegar('inicio')" class="text-2xl">🏠</button>
+            <button onclick="navegar('bitacora')" class="text-2xl">📋</button>
+            <button id="nav-admin" onclick="navegar('admin')" class="hidden text-2xl">⚙️</button>
+            <button onclick="location.reload()" class="text-2xl">🚪</button>
         </nav>
 
-        <div id="sec-inicio" class="seccion activo p-8 pt-16">
-            <div class="mb-10 text-left">
-                <p class="text-indigo-600 font-bold text-xs uppercase tracking-widest mb-1">Bienvenido</p>
-                <h1 id="display-nombre" class="text-4xl font-extrabold text-slate-900 tracking-tighter uppercase italic">---</h1>
+        <!-- PANTALLA INICIO -->
+        <div id="sec-inicio" class="seccion activo p-8">
+            <h1 class="text-4xl font-black italic mb-8 tracking-tighter uppercase">SEGURIDAD</h1>
+            <div class="grid gap-4">
+                <button onclick="abrirForm('ACCESO 1')" class="p-8 bg-slate-900 dark:bg-indigo-600 text-white rounded-[2.5rem] text-left shadow-2xl">
+                    <p class="text-2xl font-black italic">ACCESO 1</p>
+                    <p class="text-[10px] opacity-70 font-bold uppercase tracking-widest">Entrada Principal</p>
+                </button>
+                <button onclick="abrirForm('ACCESO 2')" class="p-8 bg-white dark:bg-slate-800 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 rounded-[2.5rem] text-left shadow-sm">
+                    <p class="text-2xl font-black italic">ACCESO 2</p>
+                    <p class="text-[10px] text-indigo-500 font-bold uppercase tracking-widest">Entrada Secundaria</p>
+                </button>
             </div>
-            <div class="grid gap-5">
-                <button onclick="abrirForm('ACCESO 1')" class="group relative overflow-hidden bg-slate-900 p-8 rounded-[2.5rem] shadow-2xl text-left"><span class="block text-white text-2xl font-bold relative z-10">Acceso 1</span><span class="text-slate-400 text-xs font-bold uppercase tracking-widest relative z-10 italic">Principal</span><div class="absolute right-[-10px] bottom-[-10px] text-7xl opacity-10">🚗</div></button>
-                <button onclick="abrirForm('ACCESO 2')" class="group relative overflow-hidden bg-white border border-slate-100 p-8 rounded-[2.5rem] shadow-sm text-left"><span class="block text-slate-900 text-2xl font-bold relative z-10">Acceso 2</span><span class="text-slate-400 text-xs font-bold uppercase tracking-widest relative z-10 italic">Secundario</span><div class="absolute right-[-10px] bottom-[-10px] text-7xl opacity-5">🚛</div></button>
-                <button onclick="abrirForm('PEATONAL')" class="group relative overflow-hidden bg-indigo-600 p-8 rounded-[2.5rem] shadow-xl text-left"><span class="block text-white text-2xl font-bold relative z-10">Peatonal</span><span class="text-indigo-200 text-xs font-bold uppercase tracking-widest relative z-10 italic">Visitantes</span><div class="absolute right-[-10px] bottom-[-10px] text-7xl opacity-20">🚶</div></button>
-            </div>
-            <button onclick="salir()" class="mt-12 w-full text-slate-400 font-bold text-[10px] uppercase tracking-[0.3em]">Cerrar Sesión</button>
         </div>
 
+        <!-- FORMULARIO ESTRUCTURADO -->
         <div id="sec-form" class="seccion p-6 pb-28">
-            <div class="flex items-center justify-between mb-8">
-                <div class="bg-indigo-50 px-5 py-2 rounded-2xl border border-indigo-100"><span id="tag-lugar" class="text-indigo-700 font-extrabold text-xs uppercase italic"></span></div>
-                <button onclick="navegar('inicio')" class="h-10 w-10 flex items-center justify-center bg-white rounded-full text-slate-400">✕</button>
+            <div class="flex justify-between items-center mb-6">
+                <span id="tag-lugar" class="bg-indigo-600 text-white px-5 py-1 rounded-full text-[10px] font-bold italic uppercase"></span>
+                <button onclick="navegar('inicio')" class="text-2xl">✕</button>
             </div>
 
-            <div class="space-y-1">
-                <label class="text-[10px] font-bold text-slate-400 uppercase ml-4 tracking-widest">Identificación</label>
-                <select id="tipo" class="input-elegant"><option>VISITA</option><option>PROVEEDOR</option><option>RESIDENTE</option><option>DOMÉSTICO</option><option>PROPIETARIO</option><option>TRABAJADOR</option></select>
-                <input type="text" id="nombre" placeholder="👤 Nombre Completo" class="input-elegant">
-                <input type="text" id="domicilio" placeholder="🏠 Casa / Lote / Destino" class="input-elegant">
+            <!-- BÚSQUEDA INTELIGENTE -->
+            <p class="text-[10px] font-black text-indigo-600 uppercase ml-2 mb-2 italic">🔍 Autocompletado (Placa o Nombre)</p>
+            <input type="text" id="buscador-int" oninput="motorBusqueda(this.value)" placeholder="ESCRIBA PLACA PARA AGILIZAR..." class="input-elegant !border-indigo-500/50 !bg-indigo-50/10">
 
-                <label class="text-[10px] font-bold text-slate-400 uppercase ml-4 tracking-widest">Vehículo</label>
-                <div class="grid grid-cols-2 gap-3">
-                    <input type="text" id="placa" placeholder="🔢 Placas" class="input-elegant uppercase">
-                    <select id="marca" class="input-elegant">
-                        <option value="-">MARCA</option><option>NISSAN</option><option>CHEVROLET</option><option>VOLKSWAGEN</option><option>TOYOTA</option><option>KIA</option><option>MAZDA</option><option>HONDA</option><option>FORD</option><option>HYUNDAI</option><option>BMW</option><option>AUDI</option><option>MERCEDES</option><option>TESLA</option><option>MG</option><option>BYD</option><option>OTRO</option>
+            <div class="space-y-4">
+                <!-- 1. TIPO DE PERSONA -->
+                <div>
+                    <label class="text-[10px] font-black text-slate-400 uppercase ml-2">Clasificación</label>
+                    <select id="tipo-p" class="input-elegant">
+                        <option value="">SELECCIONAR TIPO</option>
+                        <option>PROPIETARIO</option>
+                        <option>RESIDENTE</option>
+                        <option>INQUILINO</option>
+                        <option>VISITA</option>
+                        <option>TRABAJADOR</option>
                     </select>
                 </div>
-                <input type="text" id="modelo" placeholder="✨ Modelo (Ej: Sentra, Aveo, etc.)" class="input-elegant">
 
-                <label class="text-[10px] font-bold text-slate-400 uppercase ml-4 tracking-widest">Evidencias Fotográficas</label>
-                <div class="grid grid-cols-1 gap-4 mt-2">
-                    <button onclick="tomarFoto('ine')" class="w-full p-4 border-2 border-dashed border-slate-200 rounded-2xl bg-white flex items-center justify-between">
-                        <div class="flex items-center gap-3"><span class="text-2xl">🪪</span><div class="text-left"><p class="text-[10px] font-black uppercase text-slate-700">Identificación</p><p class="text-[9px] text-slate-400 italic" id="txt-ine">Pendiente...</p></div></div>
-                        <img id="prev-ine" class="hidden h-12 w-12 rounded-lg object-cover border">
-                    </button>
-                    <button onclick="tomarFoto('auto')" class="w-full p-4 border-2 border-dashed border-slate-200 rounded-2xl bg-white flex items-center justify-between">
-                        <div class="flex items-center gap-3"><span class="text-2xl">🚗</span><div class="text-left"><p class="text-[10px] font-black uppercase text-slate-700">Vehículo / Placa</p><p class="text-[9px] text-slate-400 italic" id="txt-auto">Pendiente...</p></div></div>
-                        <img id="prev-auto" class="hidden h-12 w-12 rounded-lg object-cover border">
-                    </button>
-                    <button onclick="tomarFoto('extra')" class="w-full p-4 border-2 border-dashed border-slate-200 rounded-2xl bg-white flex items-center justify-between opacity-70">
-                        <div class="flex items-center gap-3"><span class="text-2xl">➕</span><div class="text-left"><p class="text-[10px] font-black uppercase text-slate-700">Adicional (Opcional)</p><p class="text-[9px] text-slate-400 italic" id="txt-extra">Ninguna...</p></div></div>
-                        <img id="prev-extra" class="hidden h-12 w-12 rounded-lg object-cover border">
-                    </button>
+                <!-- 2. DATOS PERSONA -->
+                <div class="grid gap-2">
+                    <label class="text-[10px] font-black text-slate-400 uppercase ml-2">Información del Visitante</label>
+                    <input type="text" id="nombre" placeholder="NOMBRE COMPLETO" class="input-elegant uppercase">
+                    <input type="text" id="domicilio" placeholder="DOMICILIO / CASA / LOTE" class="input-elegant uppercase">
+                    <input type="text" id="motivo" placeholder="MOTIVO DE VISITA" class="input-elegant uppercase">
                 </div>
-                <input type="file" id="f-ine" accept="image/*" capture="environment" class="hidden" onchange="procesarFoto(this, 'ine')">
-                <input type="file" id="f-auto" accept="image/*" capture="environment" class="hidden" onchange="procesarFoto(this, 'auto')">
-                <input type="file" id="f-extra" accept="image/*" capture="environment" class="hidden" onchange="procesarFoto(this, 'extra')">
 
-                <div class="pt-6"><button onclick="guardar()" id="btn-guardar" class="btn-primary">FINALIZAR REGISTRO</button></div>
+                <!-- 3. DATOS VEHÍCULO -->
+                <div class="grid gap-2">
+                    <label class="text-[10px] font-black text-slate-400 uppercase ml-2">Detalles del Vehículo</label>
+                    <input type="text" id="placa" placeholder="PLACAS" class="input-elegant uppercase tracking-widest text-xl font-black">
+                    <div class="grid grid-cols-3 gap-2">
+                        <input type="text" id="marca" placeholder="MARCA" class="input-elegant uppercase !text-xs">
+                        <input type="text" id="modelo" placeholder="MODELO" class="input-elegant uppercase !text-xs">
+                        <input type="text" id="color" placeholder="COLOR" class="input-elegant uppercase !text-xs">
+                    </div>
+                </div>
+
+                <!-- 4. FOTOS (3) -->
+                <div class="grid gap-2">
+                    <label class="text-[10px] font-black text-slate-400 uppercase ml-2">Evidencias (3 Fotos)</label>
+                    <div class="grid grid-cols-3 gap-2">
+                        <button onclick="tomarFoto('ine')" class="btn-foto" id="btn-ine">🪪 INE<span id="st-ine" class="hidden text-green-500">✓</span></button>
+                        <button onclick="tomarFoto('auto')" class="btn-foto" id="btn-auto">🚗 AUTO<span id="st-auto" class="hidden text-green-500">✓</span></button>
+                        <button onclick="tomarFoto('extra')" class="btn-foto" id="btn-extra">➕ EXTRA<span id="st-extra" class="hidden text-green-500">✓</span></button>
+                    </div>
+                </div>
             </div>
+
+            <button onclick="finalizarRegistro()" class="w-full bg-green-500 text-white p-6 rounded-[2rem] font-black text-xl mt-8 shadow-xl shadow-green-500/20 active:scale-95 transition-all">
+                FINALIZAR REGISTRO ✓
+            </button>
         </div>
 
-        <div id="sec-buscar" class="seccion p-6 pb-28">
-            <h2 class="text-3xl font-extrabold text-slate-900 mb-6 tracking-tighter">Buscador</h2>
-            <input type="text" id="input-busqueda" onkeyup="ejecutarFiltros()" placeholder="Nombre o placa..." class="input-elegant">
-            <div class="grid grid-cols-2 gap-3 mb-6">
-                <input type="date" id="filtro-fecha" onchange="ejecutarFiltros()" class="input-elegant !text-xs">
-                <select id="filtro-estado" onchange="ejecutarFiltros()" class="input-elegant !text-xs"><option value="TODOS">TODOS</option><option value="ADENTRO">ADENTRO</option><option value="SALIDA">SALIDA</option></select>
-            </div>
-            <div id="lista-busqueda"></div>
-        </div>
-
+        <!-- BITÁCORA -->
         <div id="sec-bitacora" class="seccion p-6 pb-28">
-            <h2 class="text-3xl font-extrabold text-slate-900 mb-6 tracking-tighter italic">Hoy</h2>
-            <div id="lista-bitacora"></div>
+            <h2 class="text-3xl font-black italic mb-6">BITÁCORA HOY</h2>
+            <div id="lista-registros" class="space-y-4"></div>
+        </div>
+
+        <!-- SECCIÓN ADMIN -->
+<div id="sec-admin" class="seccion p-6 pb-28">
+    <h2 class="text-3xl font-black italic mb-6 dark:text-white uppercase tracking-tighter">Panel de Control</h2>
+
+    <!-- 1. VÍNCULO NUBE Y EXPORTACIÓN -->
+    <div class="card-registro border-2 border-green-500/30">
+        <p class="text-[10px] font-black text-green-600 uppercase mb-4 italic tracking-widest">Base de Datos & Nube</p>
+        <div class="grid gap-3">
+            <button onclick="window.open(EXCEL_URL, '_blank')" class="w-full bg-green-600 text-white p-4 rounded-2xl font-bold text-xs flex items-center justify-center gap-2 shadow-lg">
+                <span>📊</span> ABRIR GOOGLE SHEETS
+            </button>
+            <button onclick="exportarReporteTurno()" class="w-full bg-slate-900 dark:bg-white dark:text-black text-white p-4 rounded-2xl font-bold text-xs flex items-center justify-center gap-2">
+                <span>📂</span> DESCARGAR PDF DE TURNO
+            </button>
         </div>
     </div>
 
+    <!-- 2. GESTIÓN DE PERSONAL (USUARIOS) -->
+    <div class="card-registro mt-6">
+        <p class="text-[10px] font-black text-indigo-600 uppercase mb-4 tracking-widest">Gestión de Personal</p>
+        <div class="space-y-3">
+            <input type="text" id="admin-new-n" placeholder="NOMBRE DEL OFICIAL" class="input-elegant !p-3 !text-xs !mb-0">
+            <input type="password" id="admin-new-p" placeholder="PIN DE 4 DÍGITOS" class="input-elegant !p-3 !text-xs !mb-0">
+            <select id="admin-new-r" class="input-elegant !p-3 !text-xs !mb-0">
+                <option value="GUARDIA">ROL: GUARDIA</option>
+                <option value="ADMIN">ROL: ADMINISTRADOR</option>
+            </select>
+            <button onclick="adminCrearCuenta()" class="w-full bg-indigo-600 text-white p-3 rounded-2xl font-bold text-xs uppercase">Registrar Usuario</button>
+        </div>
+        <div id="admin-lista-usuarios" class="mt-6 space-y-2 border-t border-slate-100 dark:border-slate-800 pt-4">
+            <!-- JS carga la lista aquí -->
+        </div>
+    </div>
+
+    <!-- 3. LISTA DE VETOS / MULTAS -->
+    <div class="card-registro mt-6 border-red-500/20">
+        <p class="text-[10px] font-black text-red-600 uppercase mb-4 italic tracking-widest">🚫 Lista de Control (Vetos/Multas)</p>
+        <div class="space-y-3">
+            <input type="text" id="admin-veto-id" placeholder="PLACA O NOMBRE COMPLETO" class="input-elegant !p-3 !text-xs !mb-0">
+            <input type="text" id="admin-veto-motivo" placeholder="MOTIVO DE LA RESTRICCIÓN" class="input-elegant !p-3 !text-xs !mb-0">
+            <button onclick="adminAgregarVeto()" class="w-full bg-red-600 text-white p-3 rounded-2xl font-bold text-xs uppercase">Añadir Restricción</button>
+        </div>
+        <div id="admin-lista-vetos" class="mt-6 space-y-2 border-t border-slate-100 dark:border-slate-800 pt-4">
+            <!-- JS carga la lista aquí -->
+        </div>
+    </div>
+
+    <!-- 4. MANTENIMIENTO -->
+    <div class="mt-8 px-4">
+        <p id="admin-limpieza-txt" class="text-[9px] text-slate-400 text-center uppercase mb-2 font-bold"></p>
+        <button onclick="adminDepurarDatos()" class="w-full bg-red-100 text-red-600 p-4 rounded-3xl font-black text-[10px] uppercase tracking-[0.2em]">
+            Vaciar Bitácora Local
+        </button>
+    </div>
+</div>
+
+
     <script>
-        // CONFIGURACIÓN CENTRAL
-        const CLAVES = { "CUMBRES": "VIA CUMBRES", "ADMIN": "ADMINISTRACIÓN" };
-        const URL_EXCEL = ""; // <--- PEGA TU LINK DE GOOGLE AQUÍ
-
-        const storage = {
-            get: (k) => localStorage.getItem(k),
-            set: (k, v) => localStorage.setItem(k, v)
-        };
-
-        let db = JSON.parse(storage.get('db_seguridad')) || [];
-        let fotos = { ine: "", auto: "", extra: "" };
-        let lugarActual = "", fraccNombre = "";
-
-        // Al cargar la página, verificar si ya hay sesión
-        window.onload = () => {
-            const sesion = storage.get('sesion_activa');
-            if(sesion) entrar(sesion);
-            else document.getElementById('bloqueo').classList.remove('hidden');
-        };
+        let USUARIOS = { "0000": { nombre: "ADMIN", rol: "ADMIN" }, "1234": { nombre: "GUARDIA", rol: "GUARDIA" } };
+        let userLogueado = null;
+        let evidencias = { ine: null, auto: null, extra: null };
 
         function verificar() {
-            const p = document.getElementById('pass').value.trim().toUpperCase();
-            if(CLAVES[p]) {
-                storage.set('sesion_activa', CLAVES[p]);
-                entrar(CLAVES[p]);
-            } else { alert("Clave Incorrecta"); }
+            const pin = document.getElementById('pass').value;
+            if(USUARIOS[pin]) {
+                userLogueado = USUARIOS[pin];
+                document.getElementById('bloqueo').classList.add('hidden');
+                document.getElementById('app').classList.remove('hidden');
+                if(userLogueado.rol === 'ADMIN') document.getElementById('nav-admin').classList.remove('hidden');
+            } else { alert("PIN INCORRECTO"); }
         }
 
-        function entrar(nombre) {
-            fraccNombre = nombre;
-            document.getElementById('display-nombre').innerText = nombre;
-            document.getElementById('bloqueo').classList.add('hidden');
-            document.getElementById('app').classList.remove('hidden');
+        function navegar(s) {
+            document.querySelectorAll('.seccion').forEach(x => x.classList.remove('activo'));
+            document.getElementById('sec-' + s).classList.add('activo');
+            if(s === 'bitacora') renderBitacora();
         }
 
-        function navegar(id) {
-            document.querySelectorAll('.seccion').forEach(s => s.classList.remove('activo'));
-            document.getElementById('sec-' + id).classList.add('activo');
-            if(id === 'bitacora' || id === 'buscar') ejecutarFiltros();
-            window.scrollTo(0,0);
-        }
-
-        function abrirForm(lugar) {
-            lugarActual = lugar;
-            document.getElementById('tag-lugar').innerText = "📍 " + lugar;
-            navegar('form');
-        }
-
-        function tomarFoto(tipo) { document.getElementById('f-' + tipo).click(); }
-
-        function procesarFoto(input, tipo) {
-            if (input.files && input.files[0]) {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    fotos[tipo] = e.target.result;
-                    document.getElementById('prev-' + tipo).src = e.target.result;
-                    document.getElementById('prev-' + tipo).classList.remove('hidden');
-                    document.getElementById('txt-' + tipo).innerText = "✅ Capturada";
-                    document.getElementById('txt-' + tipo).classList.replace('text-slate-400', 'text-emerald-500');
-                };
-                reader.readAsDataURL(input.files[0]);
+        // MOTOR DE BÚSQUEDA INTELIGENTE
+        function motorBusqueda(val) {
+            if(val.length < 3) return;
+            const db = JSON.parse(localStorage.getItem('vc_db_v15')) || [];
+            const match = db.find(r => r.placa.includes(val.toUpperCase()) || r.nombre.includes(val.toUpperCase()));
+            
+            if(match) {
+                document.getElementById('tipo-p').value = match.tipo;
+                document.getElementById('nombre').value = match.nombre;
+                document.getElementById('domicilio').value = match.domicilio;
+                document.getElementById('placa').value = match.placa;
+                document.getElementById('marca').value = match.marca;
+                document.getElementById('modelo').value = match.modelo;
+                document.getElementById('color').value = match.color;
+                // Feedback visual de éxito
+                document.getElementById('buscador-int').classList.add('!border-green-500');
             }
         }
 
-        function guardar() {
-            const btn = document.getElementById('btn-guardar');
+        function tomarFoto(id) {
+            const input = document.createElement('input');
+            input.type = 'file'; input.accept = 'image/*'; input.capture = 'environment';
+            input.onchange = e => {
+                const reader = new FileReader();
+                reader.onload = f => { 
+                    evidencias[id] = f.target.result;
+                    document.getElementById('st-' + id).classList.remove('hidden');
+                    document.getElementById('btn-' + id).classList.add('!border-green-500', '!text-green-500');
+                };
+                reader.readAsDataURL(e.target.files);
+            };
+            input.click();
+        }
+
+        async function finalizarRegistro() {
             const reg = {
                 id: Date.now(),
-                fracc: fraccNombre,
-                nombre: document.getElementById('nombre').value.trim(),
-                domicilio: document.getElementById('domicilio').value.trim(),
-                tipo: document.getElementById('tipo').value,
-                placa: document.getElementById('placa').value.toUpperCase().trim() || "S/P",
-                marca: document.getElementById('marca').value,
-                modelo: document.getElementById('modelo').value.trim() || "-",
-                fotoIne: fotos.ine,
-                fotoAuto: fotos.auto,
-                fotoExtra: fotos.extra,
-                horaEntrada: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
-                fecha: new Date().toLocaleDateString('es-MX'),
-                lugar: lugarActual,
-                estado: 'ADENTRO'
+                fecha: new Date().toLocaleString(),
+                oficial: userLogueado.nombre,
+                lugar: document.getElementById('tag-lugar').innerText,
+                tipo: document.getElementById('tipo-p').value,
+                nombre: document.getElementById('nombre').value.toUpperCase(),
+                domicilio: document.getElementById('domicilio').value.toUpperCase(),
+                motivo: document.getElementById('motivo').value.toUpperCase(),
+                placa: document.getElementById('placa').value.toUpperCase(),
+                marca: document.getElementById('marca').value.toUpperCase(),
+                modelo: document.getElementById('modelo').value.toUpperCase(),
+                color: document.getElementById('color').value.toUpperCase(),
+                fotos: {...evidencias}
             };
 
-            if(!reg.nombre || !reg.domicilio) return alert("⚠️ Nombre y Destino son obligatorios");
-            if(!reg.fotoIne || !reg.fotoAuto) return alert("⚠️ Toma foto de Identificación y Vehículo");
-            
-            btn.disabled = true; btn.innerText = "REGISTRANDO...";
+            if(!reg.nombre || !reg.placa) return alert("Faltan campos obligatorios");
+
+            let db = JSON.parse(localStorage.getItem('vc_db_v15')) || [];
             db.unshift(reg);
-            storage.set('db_seguridad', JSON.stringify(db));
+            localStorage.setItem('vc_db_v15', JSON.stringify(db));
 
-            if(URL_EXCEL) { fetch(URL_EXCEL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(reg) }); }
-            setTimeout(() => { alert("✅ ACCESO REGISTRADO"); location.reload(); }, 800);
+            alert("✅ REGISTRO GUARDADO");
+            limpiar(); navegar('bitacora');
         }
 
-        function ejecutarFiltros() {
-            const query = (document.getElementById('input-busqueda')?.value || "").toLowerCase();
-            const f_fecha = document.getElementById('filtro-fecha')?.value;
-            const f_estado = document.getElementById('filtro-estado')?.value || "TODOS";
-            
-            const render = (containerId, filterFn) => {
-                const c = document.getElementById(containerId);
-                if(!c) return;
-                c.innerHTML = "";
-                db.filter(filterFn).forEach(r => {
-                    const color = r.estado === 'ADENTRO' ? 'bg-emerald-500' : 'bg-slate-300';
-                    c.innerHTML += `
-                        <div class="card-registro">
-                            <div class="flex justify-between mb-4">
-                                <div>
-                                    <div class="flex items-center gap-2 mb-1"><div class="w-2 h-2 rounded-full ${color}"></div><span class="text-[9px] font-black text-slate-400 uppercase italic">${r.tipo}</span></div>
-                                    <h4 class="text-lg font-bold text-slate-900">${r.nombre}</h4>
-                                    <p class="text-xs font-medium text-slate-500">${r.domicilio} • <span class="text-indigo-500">${r.fecha}</span></p>
-                                </div>
-                                <div class="text-right"><p class="text-xs font-black text-slate-900">${r.horaEntrada}</p><p class="text-[9px] font-bold text-slate-400 uppercase">${r.estado}</p></div>
-                            </div>
-                            <div class="flex gap-2">
-                                <button onclick='verFicha(${JSON.stringify(r)})' class="flex-1 bg-slate-50 py-3 rounded-xl text-[10px] font-black border border-slate-100 uppercase">Ver Ficha</button>
-                                ${r.estado === 'ADENTRO' ? `<button onclick="darSalida(${r.id})" class="flex-1 bg-rose-50 text-rose-600 py-3 rounded-xl text-[10px] font-black border border-rose-100 uppercase">Salida</button>` : ''}
-                            </div>
-                        </div>`;
-                });
-            };
-
-            const hoy = new Date().toLocaleDateString('es-MX');
-            render('lista-bitacora', r => r.fecha === hoy);
-            render('lista-busqueda', r => {
-                const mTexto = r.nombre.toLowerCase().includes(query) || r.placa.toLowerCase().includes(query);
-                const p = r.fecha.split('/'); const fISO = `${p[2]}-${p[1].padStart(2,'0')}-${p[0].padStart(2,'0')}`;
-                const mFecha = !f_fecha || fISO === f_fecha;
-                const mEstado = f_estado === "TODOS" || r.estado === f_estado;
-                return mTexto && mFecha && mEstado;
-            });
-        }
-
-        function darSalida(id) {
-            const i = db.findIndex(r => r.id === id);
-            if(i !== -1) {
-                db[i].estado = 'SALIDA';
-                db[i].horaSalida = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-                storage.set('db_seguridad', JSON.stringify(db));
-                ejecutarFiltros();
-            }
-        }
-
-        function salir() { if(confirm("¿Cerrar sesión?")) { storage.set('sesion_activa', ''); location.reload(); } }
-
-        function verFicha(r) {
-            const v = window.open('', '_blank');
-            v.document.write(`<html><head><title>Ficha</title><style>
-                body { font-family: sans-serif; padding: 20px; text-align: center; background:#f8fafc; }
-                .c { background:white; border-radius: 30px; padding: 30px; max-width: 450px; margin: auto; box-shadow:0 10px 25px rgba(0,0,0,0.05); }
-                .grid-fotos { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 20px 0; }
-                img { width: 100%; border-radius: 15px; border: 2px solid #f1f5f9; height: 120px; object-fit: cover; }
-                .foto-full { height: 200px; grid-column: span 2; }
-                .d { display: flex; justify-content: space-between; padding: 12px; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
-            </style></head><body>
-                <div class="c">
-                    <h2 style="margin:0">${r.fracc}</h2>
-                    <p style="font-size:10px; font-weight:900; color:indigo; letter-spacing:2px; margin-bottom:20px;">REPORTE DE ACCESO</p>
-                    <div class="grid-fotos">
-                        <img src="${r.fotoIne}" class="foto-full" onerror="this.style.display='none'">
-                        <img src="${r.fotoAuto}" onerror="this.style.display='none'">
-                        <img src="${r.fotoExtra || ''}" onerror="this.style.display='none'">
+        function renderBitacora() {
+            const cont = document.getElementById('lista-registros');
+            const db = JSON.parse(localStorage.getItem('vc_db_v15')) || [];
+            cont.innerHTML = db.map(r => `
+                <div class="card-registro border-l-4 border-indigo-500">
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="text-[9px] font-bold text-indigo-600 uppercase">${r.tipo}</span>
+                        <span class="text-[9px] text-slate-400 font-bold">${r.fecha}</span>
                     </div>
-                    <div class="d"><b>Nombre:</b> <span>${r.nombre}</span></div>
-                    <div class="d"><b>Destino:</b> <span>${r.domicilio}</span></div>
-                    <div class="d"><b>Vehículo:</b> <span>${r.marca} ${r.modelo}</span></div>
-                    <div class="d"><b>Placas:</b> <span>${r.placa}</span></div>
-                    <div class="d"><b>Ingreso:</b> <span>${r.fecha} ${r.horaEntrada}</span></div>
-                    ${r.horaSalida ? `<div class="d"><b>Salida:</b> <span style="color:#ef4444">${r.horaSalida}</span></div>` : ''}
-                    <button onclick="window.print()" style="margin-top:30px; width:100%; padding:20px; border-radius:20px; background:#0f172a; color:white; font-weight:bold; border:none;">IMPRIMIR / PDF</button>
+                    <h3 class="font-black text-sm uppercase">${r.nombre}</h3>
+                    <p class="text-[10px] text-slate-500 font-bold">🏠 ${r.domicilio} | 🚗 ${r.placa}</p>
+                    <div class="flex justify-end gap-2 mt-4">
+                        <button onclick="pdf(${r.id})" class="bg-slate-100 dark:bg-slate-800 text-[9px] font-black px-4 py-2 rounded-xl">📄 PDF</button>
+                    </div>
                 </div>
-            </body></html>`);
-            v.document.close();
+            `).join('');
+        }
+
+        function pdf(id) {
+            const { jsPDF } = window.jspdf; const doc = new jsPDF();
+            const r = (JSON.parse(localStorage.getItem('vc_db_v15'))).find(x => x.id === id);
+            doc.text(`VIA CUMBRES - REPORTE\n\nNombre: ${r.nombre}\nPlaca: ${r.placa}\nEntrada: ${r.fecha}\nOficial: ${r.oficial}`, 20, 20);
+            doc.save(`Recibo_${r.placa}.pdf`);
+        }
+
+        function abrirForm(lugar) { document.getElementById('tag-lugar').innerText = lugar; navegar('form'); }
+        function depurar() { if(confirm("¿VACIAR TODO?")) { localStorage.removeItem('vc_db_v15'); location.reload(); } }
+        function limpiar() {
+            ['tipo-p','nombre','domicilio','motivo','placa','marca','modelo','color','buscador-int'].forEach(id => document.getElementById(id).value = "");
+            evidencias = { ine: null, auto: null, extra: null };
+            document.querySelectorAll('[id^="st-"]').forEach(x => x.classList.add('hidden'));
+            document.querySelectorAll('[id^="btn-"]').forEach(x => x.classList.remove('!border-green-500', '!text-green-500'));
         }
     </script>
 </body>
